@@ -1,0 +1,4 @@
+gameinfo
+{
+  AddEventHandlers = "ia_EventHandler", "sa_EventHandler"
+}
