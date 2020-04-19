@@ -84,18 +84,60 @@ class sa_Achievement : Actor abstract
 
   Default
   {
-    sa_Achievement.Name "You've got it!";
-    sa_Achievement.Font "NewSmallFont";
+    sa_Achievement.title "Achievement Unlocked"; // General title for achievements.
+    sa_Achievement.name  "You've got it!";       // Specific name for this achievement.
+
+    // Overall duration of achievement notification, including animation.
+    // In tics, 35 tics is a second.
+    sa_Achievement.lifetime      35 * 3;
+    // Duration of animation of achievement notification.
+    // Notification can be not animated, see sa_animation_type Cvar.
+    // If the notification is animated, there are two animations: appearing and disappearing.
+    // In tics, 35 tics is a second.
+    sa_Achievement.animationTime 35 / 4;
+
+    // Background alpha map texture. Default: gradient to background, top to bottom.
+    // Must exist.
+    // Will be mercilessly scaled to box width and height.
+    sa_Achievement.texture     "sa_gradb";
+    sa_Achievement.fontName    "NewSmallFont";
+    sa_Achievement.borderColor 0x222222; // Border and background color. RGB: 0xRRGGBB.
+    sa_Achievement.boxColor    0x2222AA; // Foreground color. RGB: 0xRRGGBB.
+    sa_Achievement.textColor   Font.CR_White; // Text color. See Font struct for available colors.
+
+    sa_Achievement.margin 10; // px, space between text and border.
+    sa_Achievement.border  1; // px, border width.
   }
 
-  String getName() const { return mName; }
-  String getFont() const { return mFont; }
+  String title;
+  String name;
 
-  private String mName;
-  private String mFont;
+  int lifetime;
+  int animationTime;
 
-  property Name: mName;
-  property Font: mFont;
+  String fontName;
+  String texture;
+  int    borderColor;
+  int    boxColor;
+  int    textColor;
+
+  int margin;
+  int border;
+
+  property title         : title;
+  property name          : name;
+
+  property lifetime      : lifetime;
+  property animationTime : animationTime;
+
+  property fontName      : fontName;
+  property texture       : texture;
+  property borderColor   : borderColor;
+  property boxColor      : boxColor;
+  property textColor     : textColor;
+
+  property margin        : margin;
+  property border        : border;
 
 } // class sa_Achievement
 
@@ -107,7 +149,7 @@ class sa_Task abstract
 
   bool isFinished(int levelTime) const
   {
-    return levelTime > mBirthTime + LIFE_TIME;
+    return levelTime > mBirthTime + mLifetime;
   }
 
   void start()
@@ -118,22 +160,53 @@ class sa_Task abstract
   protected
   void init(readonly<sa_Achievement> achievement)
   {
-    mName = achievement.getName();
-    mFont = Font.GetFont(achievement.getFont());
+    mText          = String.format("%s\n%s", achievement.title, achievement.name);
+    mNLines        = countLines(mText);
+
+    mLifetime      = achievement.lifetime;
+    mAnimationTime = achievement.animationTime;
+
+    mFont          = Font.GetFont(achievement.fontName);
+    mTexture       = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
+    mBorderColor   = achievement.borderColor;
+    mBoxColor      = achievement.boxColor;
+    mTextColor     = achievement.textColor;
+
+    mMargin        = achievement.margin;
+    mBorder        = achievement.border;
 
     mHorizontalPositionCvar = sa_Cvar.of("sa_horizontal_position");
     mVerticalPositionCvar   = sa_Cvar.of("sa_vertical_position");
   }
 
-  protected String mName;
-  protected Font   mFont;
+  protected String    mText;
+  protected int       mNLines;
+  protected int       mLifetime;
+  protected int       mAnimationTime;
+  protected Font      mFont;
+  protected TextureID mTexture;
+  protected int       mBorderColor;
+  protected int       mBoxColor;
+  protected int       mTextColor;
+  protected int       mMargin;
+  protected int       mBorder;
 
-  protected int    mBirthTime;
+  protected int mBirthTime;
 
   protected sa_Cvar mHorizontalPositionCvar;
   protected sa_Cvar mVerticalPositionCvar;
 
-  const LIFE_TIME = 35 * 3;
+  private
+  int countLines(String s)
+  {
+    int nBytes = s.length();
+    int nLines = 1;
+    for (int i = 0; i < nBytes; ++i)
+    {
+      nLines += (s.byteAt(i) == 10);
+    }
+    return nLines;
+  }
 
 } // class sa_Task abstract
 
@@ -153,63 +226,56 @@ class sa_NoAnimationTask : sa_Task
   override
   void draw(int levelTime, double fracTic)
   {
-    Font f = mFont;
+    int textWidth  = mFont.stringWidth(mText);
+    int textHeight = mFont.getHeight() * mNLines; // assuming no DTA_CellY in Screen.DrawText.
 
-    String text = String.format("Achievement Unlocked\n%s", mName);
-    int nLines = countLines(text);
+    int boxWidth  = mMargin * 2 + textWidth;
+    int boxHeight = mMargin * 2 + textHeight;
 
-    int textWidth  = f.stringWidth(text);
-    int textHeight = f.getHeight() * nLines; // assuming no DTA_CellY in Screen.DrawText.
-
-    int boxWidth  = MARGIN * 2 + textWidth;
-    int boxHeight = MARGIN * 2 + textHeight;
-
-    int borderWidth  = BORDER * 2 + boxWidth;
-    int borderHeight = BORDER * 2 + boxHeight;
+    int borderWidth  = mBorder * 2 + boxWidth;
+    int borderHeight = mBorder * 2 + boxHeight;
 
     int x, y;
     [x, y] = getXY(borderWidth, borderHeight, levelTime, fracTic);
 
-    int textX   = x + MARGIN + BORDER;
-    int textY   = y + MARGIN + BORDER;
-    int boxX    = x + BORDER;
-    int boxY    = y + BORDER;
+    int textX   = x + mMargin + mBorder;
+    int textY   = y + mMargin + mBorder;
+    int boxX    = x + mBorder;
+    int boxY    = y + mBorder;
     int borderX = x;
     int borderY = y;
-
-    let tex = TexMan.checkForTexture("sa_gradb", TexMan.Type_Any);
 
     double alpha = getAlpha(levelTime, fracTic);
 
     // border
-    Screen.DrawTexture( tex // not needed here, really, but something has to be here.
+    Screen.DrawTexture( mTexture // not needed here, really, but something has to be here.
                       , NO_ANIMATION
                       , borderX
                       , borderY
-                      , DTA_DestWidth,  borderWidth
-                      , DTA_DestHeight, borderHeight
-                      , DTA_FillColor,  0x222222
-                      , DTA_Alpha,      alpha
+                      , DTA_DestWidth  , borderWidth
+                      , DTA_DestHeight , borderHeight
+                      , DTA_FillColor  , mBorderColor
+                      , DTA_Alpha      , alpha
                       );
 
     // box
-    Screen.DrawTexture( tex
+    Screen.DrawTexture( mTexture
                       , NO_ANIMATION
                       , boxX
                       , boxY
-                      , DTA_DestWidth,  boxWidth
-                      , DTA_DestHeight, boxHeight
-                      , DTA_FillColor,  0x2222AA
-                      , DTA_AlphaChannel, true
-                      , DTA_Alpha,      alpha
+                      , DTA_DestWidth    , boxWidth
+                      , DTA_DestHeight   , boxHeight
+                      , DTA_FillColor    , mBoxColor
+                      , DTA_AlphaChannel , true
+                      , DTA_Alpha        , alpha
                       );
 
     // text
-    Screen.DrawText( f
-                   , Font.CR_White
+    Screen.DrawText( mFont
+                   , mTextColor
                    , textX
                    , textY
-                   , text
+                   , mText
                    , DTA_Alpha, alpha
                    );
   }
@@ -255,22 +321,7 @@ class sa_NoAnimationTask : sa_Task
     return x, y;
   }
 
-  private
-  int countLines(String s)
-  {
-    int nBytes = s.length();
-    int nLines = 1;
-    for (int i = 0; i < nBytes; ++i)
-    {
-      nLines += (s.byteAt(i) == 10);
-    }
-    return nLines;
-  }
-
   const NO_ANIMATION = 0; // == false
-
-  const MARGIN = 10;
-  const BORDER =  1;
 
 } // class sa_NoAnimationTask
 
@@ -302,16 +353,16 @@ class sa_AnimationTask : sa_NoAnimationTask abstract
     }
   }
 
-  protected static
+  protected
   double getFractionIn(double time)
   {
-    return clamp(time / ANIMATION_TIME, 0, 1);
+    return clamp(time / mAnimationTime, 0, 1);
   }
 
-  protected static
+  protected
   double getFractionOut(double time)
   {
-    return clamp((time - (LIFE_TIME - ANIMATION_TIME)) / ANIMATION_TIME, 0, 1);
+    return clamp((time - (mLifetime - mAnimationTime)) / mAnimationTime, 0, 1);
   }
 
   protected static
@@ -320,8 +371,7 @@ class sa_AnimationTask : sa_NoAnimationTask abstract
     return int(round(start * (1 - fraction) + target * fraction));
   }
 
-  const ANIMATION_TIME = 35 / 4;
-}
+} // class sa_AnimationTask
 
 class sa_SlideHorizontallyTask : sa_AnimationTask
 {
@@ -342,7 +392,7 @@ class sa_SlideHorizontallyTask : sa_AnimationTask
     int targetX, targetY;
     [targetX, targetY] = super.getXY(width, height, levelTime, fracTic);
 
-    if (time < ANIMATION_TIME)
+    if (time < mAnimationTime)
     {
       // return slide in xy
       int    startX   = getStartX(width);
@@ -351,7 +401,7 @@ class sa_SlideHorizontallyTask : sa_AnimationTask
 
       return currentX, targetY;
     }
-    else if (time > LIFE_TIME - ANIMATION_TIME)
+    else if (time > mLifetime - mAnimationTime)
     {
       // return slide out xy
       int    startX   = getStartX(width);
@@ -388,7 +438,7 @@ class sa_SlideVerticallyTask : sa_AnimationTask
     int targetX, targetY;
     [targetX, targetY] = super.getXY(width, height, levelTime, fracTic);
 
-    if (time < ANIMATION_TIME)
+    if (time < mAnimationTime)
     {
       // return slide in xy
       int    startY   = getStartY(height);
@@ -397,7 +447,7 @@ class sa_SlideVerticallyTask : sa_AnimationTask
 
       return targetX, currentY;
     }
-    else if (time > LIFE_TIME - ANIMATION_TIME)
+    else if (time > mLifetime - mAnimationTime)
     {
       // return slide out xy
       int    startY   = getStartY(height);
@@ -431,11 +481,11 @@ class sa_FadeInOutTask : sa_AnimationTask
   {
     int time = levelTime - mBirthTime;
 
-    if (time < ANIMATION_TIME)
+    if (time < mAnimationTime)
     {
       return getFractionIn(time + fracTic);
     }
-    else if (time > LIFE_TIME - ANIMATION_TIME)
+    else if (time > mLifetime - mAnimationTime)
     {
       return 1 - getFractionOut(time + fracTic);
     }
