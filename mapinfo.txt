@@ -1,4 +1,4 @@
 gameinfo
 {
-  AddEventHandlers = "ia_EventHandler", "sa_EventHandler"
+  AddEventHandlers = "ia_EventHandler", "sa_Achiever"
 }
