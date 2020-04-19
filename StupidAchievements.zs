@@ -13,13 +13,27 @@ class sa_Achiever : EventHandler
       return;
     }
 
-    let achievement = getDefaultByType(c);
-    me.mTasks.push(sa_NoAnimationTask.of(achievement));
+    let achievement   = getDefaultByType(c);
+    int animationType = me.mAnimationTypeCvar.getInt();
+
+    switch (animationType)
+    {
+    case 0:  me.mTasks.push(sa_SlideVerticallyTask  .of(achievement)); break;
+    case 1:  me.mTasks.push(sa_SlideHorizontallyTask.of(achievement)); break;
+    case 2:  me.mTasks.push(sa_FadeInOutTask        .of(achievement)); break;
+    default: me.mTasks.push(sa_NoAnimationTask      .of(achievement)); break;
+    }
 
     if (me.mTasks.size() == 1)
     {
-      me.getCurrentTask().start();
+      me.mTasks[0].start();
     }
+  }
+
+  override
+  void OnRegister()
+  {
+    mAnimationTypeCvar = sa_Cvar.of("sa_animation_type");
   }
 
   override
@@ -61,6 +75,7 @@ class sa_Achiever : EventHandler
   }
 
   private Array<sa_Task> mTasks;
+  private sa_Cvar mAnimationTypeCvar;
 
 } // class sa_Achiever
 
@@ -153,7 +168,7 @@ class sa_NoAnimationTask : sa_Task
     int borderHeight = BORDER * 2 + boxHeight;
 
     int x, y;
-    [x, y] = getXY(borderWidth, borderHeight);
+    [x, y] = getXY(borderWidth, borderHeight, levelTime, fracTic);
 
     int textX   = x + MARGIN + BORDER;
     int textY   = y + MARGIN + BORDER;
@@ -164,6 +179,8 @@ class sa_NoAnimationTask : sa_Task
 
     let tex = TexMan.checkForTexture("sa_gradb", TexMan.Type_Any);
 
+    double alpha = getAlpha(levelTime, fracTic);
+
     // border
     Screen.DrawTexture( tex // not needed here, really, but something has to be here.
                       , NO_ANIMATION
@@ -172,6 +189,7 @@ class sa_NoAnimationTask : sa_Task
                       , DTA_DestWidth,  borderWidth
                       , DTA_DestHeight, borderHeight
                       , DTA_FillColor,  0x222222
+                      , DTA_Alpha,      alpha
                       );
 
     // box
@@ -183,6 +201,7 @@ class sa_NoAnimationTask : sa_Task
                       , DTA_DestHeight, boxHeight
                       , DTA_FillColor,  0x2222AA
                       , DTA_AlphaChannel, true
+                      , DTA_Alpha,      alpha
                       );
 
     // text
@@ -191,6 +210,7 @@ class sa_NoAnimationTask : sa_Task
                    , textX
                    , textY
                    , text
+                   , DTA_Alpha, alpha
                    );
   }
 
@@ -206,8 +226,14 @@ class sa_NoAnimationTask : sa_Task
     VPOS_BOTTOM,
   }
 
-  private
-  int, int getXY(int width, int height)
+  protected virtual
+  double getAlpha(int levelTime, double fracTic)
+  {
+    return 1;
+  }
+
+  protected virtual
+  int, int getXY(int width, int height, int levelTime, double fracTic)
   {
     int horizontalPosition = mHorizontalPositionCvar.getInt();
     int verticalPosition   = mVerticalPositionCvar.getInt();
@@ -244,9 +270,181 @@ class sa_NoAnimationTask : sa_Task
   const NO_ANIMATION = 0; // == false
 
   const MARGIN = 10;
-  const BORDER =  2;
+  const BORDER =  1;
 
 } // class sa_NoAnimationTask
+
+class sa_AnimationTask : sa_NoAnimationTask abstract
+{
+  protected
+  int getStartX(int width)
+  {
+    int horizontalPosition = mHorizontalPositionCvar.getInt();
+    switch (horizontalPosition)
+    {
+    case HPOS_LEFT:  return -width;
+    case HPOS_RIGHT: return Screen.getWidth();
+
+    default: Console.printf("unknown horizontal position"); return 0;
+    }
+  }
+
+  protected
+  int getStartY(int height)
+  {
+    int verticalPosition = mVerticalPositionCvar.getInt();
+    switch (verticalPosition)
+    {
+    case VPOS_TOP:  return -height;
+    case VPOS_BOTTOM: return Screen.getHeight();
+
+    default: Console.printf("unknown vertical position"); return 0;
+    }
+  }
+
+  protected static
+  double getFractionIn(double time)
+  {
+    return clamp(time / ANIMATION_TIME, 0, 1);
+  }
+
+  protected static
+  double getFractionOut(double time)
+  {
+    return clamp((time - (LIFE_TIME - ANIMATION_TIME)) / ANIMATION_TIME, 0, 1);
+  }
+
+  protected static
+  int getValueBetween(int start, int target, double fraction)
+  {
+    return int(round(start * (1 - fraction) + target * fraction));
+  }
+
+  const ANIMATION_TIME = 35 / 4;
+}
+
+class sa_SlideHorizontallyTask : sa_AnimationTask
+{
+
+  static
+  sa_SlideHorizontallyTask of(readonly<sa_Achievement> achievement)
+  {
+    let result = new("sa_SlideHorizontallyTask");
+    result.init(achievement);
+    return result;
+  }
+
+  override
+  int, int getXY(int width, int height, int levelTime, double fracTic)
+  {
+    int time = levelTime - mBirthTime;
+
+    int targetX, targetY;
+    [targetX, targetY] = super.getXY(width, height, levelTime, fracTic);
+
+    if (time < ANIMATION_TIME)
+    {
+      // return slide in xy
+      int    startX   = getStartX(width);
+      double fraction = getFractionIn(time + fracTic);
+      int    currentX = getValueBetween(startX, targetX, fraction);
+
+      return currentX, targetY;
+    }
+    else if (time > LIFE_TIME - ANIMATION_TIME)
+    {
+      // return slide out xy
+      int    startX   = getStartX(width);
+      double fraction = getFractionOut(time + fracTic);
+      int    currentX = getValueBetween(targetX, startX, fraction);
+
+      return currentX, targetY;
+    }
+    else
+    {
+      // return stay in place xy:
+      return targetX, targetY;
+    }
+  }
+
+} // class sa_SlideHorizontallyTask
+
+class sa_SlideVerticallyTask : sa_AnimationTask
+{
+
+  static
+  sa_SlideVerticallyTask of(readonly<sa_Achievement> achievement)
+  {
+    let result = new("sa_SlideVerticallyTask");
+    result.init(achievement);
+    return result;
+  }
+
+  override
+  int, int getXY(int width, int height, int levelTime, double fracTic)
+  {
+    int time = levelTime - mBirthTime;
+
+    int targetX, targetY;
+    [targetX, targetY] = super.getXY(width, height, levelTime, fracTic);
+
+    if (time < ANIMATION_TIME)
+    {
+      // return slide in xy
+      int    startY   = getStartY(height);
+      double fraction = getFractionIn(time + fracTic);
+      int    currentY = getValueBetween(startY, targetY, fraction);
+
+      return targetX, currentY;
+    }
+    else if (time > LIFE_TIME - ANIMATION_TIME)
+    {
+      // return slide out xy
+      int    startY   = getStartY(height);
+      double fraction = getFractionOut(time + fracTic);
+      int    currentY = getValueBetween(targetY, startY, fraction);
+
+      return targetX, currentY;
+    }
+    else
+    {
+      // return stay in place xy:
+      return targetX, targetY;
+    }
+  }
+
+} // class sa_SlideVerticallyTask
+
+class sa_FadeInOutTask : sa_AnimationTask
+{
+
+  static
+  sa_FadeInOutTask of(readonly<sa_Achievement> achievement)
+  {
+    let result = new("sa_FadeInOutTask");
+    result.init(achievement);
+    return result;
+  }
+
+  override
+  double getAlpha(int levelTime, double fracTic)
+  {
+    int time = levelTime - mBirthTime;
+
+    if (time < ANIMATION_TIME)
+    {
+      return getFractionIn(time + fracTic);
+    }
+    else if (time > LIFE_TIME - ANIMATION_TIME)
+    {
+      return 1 - getFractionOut(time + fracTic);
+    }
+    else
+    {
+      return super.getAlpha(levelTime, fracTic);
+    }
+  }
+} // class sa_FadeInOutTask
 
 /**
  * This class provides access to a user or server Cvar.
