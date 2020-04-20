@@ -14,20 +14,48 @@ class sa_Achiever : EventHandler
     }
 
     let achievement   = getDefaultByType(c);
-    int animationType = me.mAnimationTypeCvar.getInt();
 
-    switch (animationType)
+    int count, state;
+    [count, state] = updateAchievementState(achievementClass, achievement);
+
+    switch (state)
     {
-    case 0:  me.mTasks.push(sa_SlideVerticallyTask  .of(achievement)); break;
-    case 1:  me.mTasks.push(sa_SlideHorizontallyTask.of(achievement)); break;
-    case 2:  me.mTasks.push(sa_FadeInOutTask        .of(achievement)); break;
-    default: me.mTasks.push(sa_NoAnimationTask      .of(achievement)); break;
+    case STATE_UNLOCKED: addTask(me, achievement, false, 0    ); break;
+    case STATE_PROGRESS:
+      if (achievement.isProgressVisible)
+      {
+        addTask(me, achievement, true,  count);
+      }
+      break;
+    case STATE_HIDE: return;
     }
 
     if (me.mTasks.size() == 1)
     {
       me.mTasks[0].start();
     }
+  }
+
+  private static
+  void addTask( sa_Achiever me
+              , readonly<sa_Achievement> achievement
+              , bool isProgress
+              , int  count
+              )
+  {
+    int animationType = me.mAnimationTypeCvar.getInt();
+    sa_Task newTask;
+    switch (animationType)
+    {
+    case 0:  newTask = new("sa_SlideVerticallyTask"  ); break;
+    case 1:  newTask = new("sa_SlideHorizontallyTask"); break;
+    case 2:  newTask = new("sa_FadeInOutTask"        ); break;
+    default: newTask = new("sa_NoAnimationTask"      ); break;
+    }
+
+    newTask.init(achievement, isProgress, count);
+
+    me.mTasks.push(newTask);
   }
 
   override
@@ -74,6 +102,48 @@ class sa_Achiever : EventHandler
       : mTasks[0];
   }
 
+  enum AchievementStates
+  {
+    STATE_UNLOCKED, // Achievement is unlocked and must be shown to player.
+    STATE_PROGRESS, // Achievement progressed, progress must be show to player.
+    STATE_HIDE,     // Achievement was unlocked before, don't show it again.
+  }
+
+  /**
+   * returns the updated achievement count and state.
+   */
+  private static
+  int, int updateAchievementState(String achievementClass, readonly<sa_Achievement> achievement)
+  {
+    Cvar   c           = Cvar.getCvar("sa_achievements");
+    String serialized  = c.getString();
+    let    dict        = Dictionary.fromString(serialized);
+    String status      = dict.at(achievementClass);
+    int    count       = status.toInt();
+    int limit          = achievement.limit;
+
+    if (count >= limit)
+    {
+      return count, STATE_HIDE;
+    }
+
+    ++count;
+
+    status = String.format("%d", count);
+    dict.Insert(achievementClass, status);
+    serialized = dict.toString();
+    c.setString(serialized);
+
+    if (count == limit)
+    {
+      return count, STATE_UNLOCKED;
+    }
+    else
+    {
+      return count, STATE_PROGRESS;
+    }
+  }
+
   private Array<sa_Task> mTasks;
   private sa_Cvar mAnimationTypeCvar;
 
@@ -84,8 +154,15 @@ class sa_Achievement : Actor abstract
 
   Default
   {
-    sa_Achievement.title "Achievement Unlocked"; // General title for achievements.
-    sa_Achievement.name  "You've got it!";       // Specific name for this achievement.
+    sa_Achievement.title       "Achievement Unlocked!"; // General title for achievements.
+    sa_Achievement.name        "You did something.";    // Specific name for this achievement.
+    sa_Achievement.description "Explained something!";  // Specific description for this achievement.
+
+    // Must be > 0. When limit is > 1, unlocking this achievement requires progress.
+    sa_Achievement.limit      3;
+    // Text that will be shown on achievement progres.
+    sa_Achievement.progressTitle "Achievement Progress: ";
+    sa_Achievement.isProgressVisible false;
 
     // Overall duration of achievement notification, including animation.
     // In tics, 35 tics is a second.
@@ -111,6 +188,11 @@ class sa_Achievement : Actor abstract
 
   String title;
   String name;
+  String description;
+
+  int    limit;
+  String progressTitle;
+  bool   isProgressVisible;
 
   int lifetime;
   int animationTime;
@@ -126,6 +208,11 @@ class sa_Achievement : Actor abstract
 
   property title         : title;
   property name          : name;
+  property description   : description;
+
+  property limit         : limit;
+  property progressTitle : progressTitle;
+  property isProgressVisible : isProgressVisible;
 
   property lifetime      : lifetime;
   property animationTime : animationTime;
@@ -157,10 +244,22 @@ class sa_Task abstract
     mBirthTime = level.time;
   }
 
-  protected
-  void init(readonly<sa_Achievement> achievement)
+  void init(readonly<sa_Achievement> achievement, bool isProgress, int count)
   {
-    mText          = String.format("%s\n%s", achievement.title, achievement.name);
+    if (isProgress)
+    {
+      mText = String.format( "%s%d/%d\n%s"
+                           , achievement.progressTitle
+                           , count
+                           , achievement.limit
+                           , achievement.name
+                           );
+    }
+    else
+    {
+      mText = String.format("%s\n%s", achievement.title, achievement.name);
+    }
+
     mNLines        = countLines(mText);
 
     mLifetime      = achievement.lifetime;
@@ -212,16 +311,6 @@ class sa_Task abstract
 
 class sa_NoAnimationTask : sa_Task
 {
-
-  static
-  sa_Task of(readonly<sa_Achievement> achievement)
-  {
-    let result = new("sa_NoAnimationTask");
-
-    result.init(achievement);
-
-    return result;
-  }
 
   override
   void draw(int levelTime, double fracTic)
@@ -376,14 +465,6 @@ class sa_AnimationTask : sa_NoAnimationTask abstract
 class sa_SlideHorizontallyTask : sa_AnimationTask
 {
 
-  static
-  sa_SlideHorizontallyTask of(readonly<sa_Achievement> achievement)
-  {
-    let result = new("sa_SlideHorizontallyTask");
-    result.init(achievement);
-    return result;
-  }
-
   override
   int, int getXY(int width, int height, int levelTime, double fracTic)
   {
@@ -421,14 +502,6 @@ class sa_SlideHorizontallyTask : sa_AnimationTask
 
 class sa_SlideVerticallyTask : sa_AnimationTask
 {
-
-  static
-  sa_SlideVerticallyTask of(readonly<sa_Achievement> achievement)
-  {
-    let result = new("sa_SlideVerticallyTask");
-    result.init(achievement);
-    return result;
-  }
 
   override
   int, int getXY(int width, int height, int levelTime, double fracTic)
@@ -468,14 +541,6 @@ class sa_SlideVerticallyTask : sa_AnimationTask
 class sa_FadeInOutTask : sa_AnimationTask
 {
 
-  static
-  sa_FadeInOutTask of(readonly<sa_Achievement> achievement)
-  {
-    let result = new("sa_FadeInOutTask");
-    result.init(achievement);
-    return result;
-  }
-
   override
   double getAlpha(int levelTime, double fracTic)
   {
@@ -494,6 +559,7 @@ class sa_FadeInOutTask : sa_AnimationTask
       return super.getAlpha(levelTime, fracTic);
     }
   }
+
 } // class sa_FadeInOutTask
 
 /**
@@ -528,11 +594,11 @@ class sa_Cvar
   {
     if (_cvar == NULL)
     {
-      _cvar = Cvar.GetCvar(_name, players[consolePlayer]);
+      _cvar = Cvar.getCvar(_name, players[consolePlayer]);
 
       if (_cvar == NULL)
       {
-        Console.Printf("Cvar %s not found.", _name);
+        Console.printf("Cvar %s not found.", _name);
       }
     }
   }

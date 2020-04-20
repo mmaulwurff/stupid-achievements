@@ -1,3 +1,5 @@
 user int sa_vertical_position   = 1;
 user int sa_horizontal_position = 1;
 user int sa_animation_type      = 0;
+
+nosave string sa_achievements = "";
