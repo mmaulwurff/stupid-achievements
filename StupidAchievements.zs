@@ -1,6 +1,43 @@
+/* Copyright Alexander 'm8f' Kromm (mmaulwurff@gmail.com) 2020
+ *
+ * This file is a part of Typist.pk3.
+ *
+ * Typist.pk3 is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Typist.pk3 is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Typist.pk3.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file StupidAchievements.zs
+ *
+ * This file contains Stupid Achievements, achievement script for GZDoom.
+ *
+ * This file contains all the ZScript code needed for Stupid Achievements to work.
+ *
+ * From the user point of view, only two things are of interest here:
+ *
+ * 1. sa_Achiever.achieve(String achievementClass) function;
+ * 2. sa_Achievement class.
+ */
+
 class sa_Achiever : EventHandler
 {
 
+  /**
+   * This function calls an achievement.
+   *
+   * It handles showing a notification and storing achievement progress.
+   *
+   * @param achievementClass class name of something that is derived from sa_Achievement.
+   */
   static
   void achieve(String achievementClass)
   {
