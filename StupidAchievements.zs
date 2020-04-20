@@ -36,32 +36,31 @@ class sa_Achiever : EventHandler
    *
    * It handles showing a notification and storing achievement progress.
    *
-   * @param achievementClass class name of something that is derived from sa_Achievement.
+   * @param achievementClass class of something that is derived from sa_Achievement.
+   *
+   * Example:
+   * sa_Achiever.achieve("MyFirstAchievement");
    */
   static
-  void achieve(String achievementClass)
+  void achieve(Class<sa_Achievement> achievementClass)
   {
-    let me = sa_Achiever(EventHandler.find("sa_Achiever"));
-    Class<sa_Achievement> c = achievementClass;
-
-    if (c == NULL)
-    {
-      Console.Printf("%s is not an achievement class!", achievementClass);
-      return;
-    }
-
-    let achievement   = getDefaultByType(c);
-
+    let achievement = getDefaultByType(achievementClass);
     int count, state;
-    [count, state] = updateAchievementState(achievementClass, achievement);
+    [count, state] = updateAchievementState(achievement);
+
+    let me = sa_Achiever(EventHandler.find("sa_Achiever"));
 
     switch (state)
     {
-    case STATE_UNLOCKED: addTask(me, achievement, false, 0    ); break;
+    case STATE_UNLOCKED: addTask(me, achievement, false, 0); break;
     case STATE_PROGRESS:
       if (achievement.isProgressVisible)
       {
         addTask(me, achievement, true,  count);
+      }
+      else
+      {
+        return;
       }
       break;
     case STATE_HIDE: return;
@@ -150,14 +149,15 @@ class sa_Achiever : EventHandler
    * returns the updated achievement count and state.
    */
   private static
-  int, int updateAchievementState(String achievementClass, readonly<sa_Achievement> achievement)
+  int, int updateAchievementState(readonly<sa_Achievement> achievement)
   {
-    Cvar   c           = Cvar.getCvar("sa_achievements");
-    String serialized  = c.getString();
-    let    dict        = Dictionary.fromString(serialized);
-    String status      = dict.at(achievementClass);
-    int    count       = status.toInt();
-    int limit          = achievement.limit;
+    String className  = achievement.getClassName();
+    Cvar   c          = Cvar.getCvar("sa_achievements");
+    String serialized = c.getString();
+    let    dict       = Dictionary.fromString(serialized);
+    String status     = dict.at(className);
+    int    count      = status.toInt();
+    int    limit      = achievement.limit;
 
     if (count >= limit)
     {
@@ -167,7 +167,7 @@ class sa_Achiever : EventHandler
     ++count;
 
     status = String.format("%d", count);
-    dict.Insert(achievementClass, status);
+    dict.Insert(className, status);
     serialized = dict.toString();
     c.setString(serialized);
 
@@ -196,7 +196,7 @@ class sa_Achievement : Actor abstract
     sa_Achievement.description "Explained something!";  // Specific description for this achievement.
 
     // Must be > 0. When limit is > 1, unlocking this achievement requires progress.
-    sa_Achievement.limit      3;
+    sa_Achievement.limit 1;
     // Text that will be shown on achievement progres.
     sa_Achievement.progressTitle "Achievement Progress: ";
     sa_Achievement.isProgressVisible false;
