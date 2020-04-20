@@ -315,11 +315,11 @@ class sa_NoAnimationTask : sa_Task
   override
   void draw(int levelTime, double fracTic)
   {
-    int textWidth  = mFont.stringWidth(mText);
-    int textHeight = mFont.getHeight() * mNLines; // assuming no DTA_CellY in Screen.DrawText.
+    int textWidth    = CleanXFac_1 * mFont.stringWidth(mText);
+    int textHeight   = CleanYFac_1 * mFont.getHeight() * mNLines;
 
-    int boxWidth  = mMargin * 2 + textWidth;
-    int boxHeight = mMargin * 2 + textHeight;
+    int boxWidth     = mMargin * 2 + textWidth;
+    int boxHeight    = mMargin * 2 + textHeight;
 
     int borderWidth  = mBorder * 2 + boxWidth;
     int borderHeight = mBorder * 2 + boxHeight;
@@ -365,7 +365,8 @@ class sa_NoAnimationTask : sa_Task
                    , textX
                    , textY
                    , mText
-                   , DTA_Alpha, alpha
+                   , DTA_Alpha         , alpha
+                   , DTA_CleanNoMove_1 , true
                    );
   }
 
