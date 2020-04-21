@@ -19,15 +19,6 @@ class ia_EventHandler : EventHandler
 {
 
   override
-  void networkProcess(ConsoleEvent event)
-  {
-    if (event.Name == "ia_test")
-    {
-      sa_Achiever.achieve("sa_Achievement");
-    }
-  }
-
-  override
   void worldThingDied(WorldEvent event)
   {
     if (isImp(event.thing))

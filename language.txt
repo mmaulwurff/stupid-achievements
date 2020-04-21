@@ -1,0 +1,21 @@
+[enu default]
+
+// Options Menu ////////////////////////////////////////////////////////////////
+
+SA_MENU_TITLE = "Stupid Achievements Options";
+SA_HORIZONTAL = "Horizontal position";
+SA_VERTICAL   = "Vertical position";
+SA_ANIMATION  = "Animation type";
+SA_LEFT       = "Left";
+SA_RIGHT      = "Right";
+SA_TOP        = "Top";
+SA_BOTTOM     = "Bottom";
+SA_CLEAR      = "Clear achievements";
+SA_TEST       = "Show test achievement";
+
+SA_SLIDE_VERTICAL   = "Slide vertically";
+SA_SLIDE_HORIZONTAL = "Slide horizontally";
+SA_FADE_IN_OUT      = "Fade in/fade out";
+SA_DISABLED         = "Disabled";
+
+//

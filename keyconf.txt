@@ -1,0 +1,2 @@
+Alias sa_clear_achievements "sa_achievements \"\""
+Alias sa_test "netevent sa_test"

@@ -95,13 +95,13 @@ class sa_Achiever : EventHandler
   }
 
   override
-  void OnRegister()
+  void onRegister()
   {
     mAnimationTypeCvar = sa_Cvar.of("sa_animation_type");
   }
 
   override
-  void WorldTick()
+  void worldTick()
   {
     let task = getCurrentTask();
     int time = level.time;
@@ -119,7 +119,7 @@ class sa_Achiever : EventHandler
   }
 
   override
-  void RenderOverlay(RenderEvent event)
+  void renderOverlay(RenderEvent event)
   {
     let task = getCurrentTask();
     int time = level.time;
@@ -127,6 +127,15 @@ class sa_Achiever : EventHandler
     if (task && !task.isFinished(time))
     {
       task.draw(time, event.fracTic);
+    }
+  }
+
+  override
+  void networkProcess(ConsoleEvent event)
+  {
+    if (event.name == "sa_test")
+    {
+      sa_Achiever.achieve("sa_TestAchievement");
     }
   }
 
@@ -264,6 +273,17 @@ class sa_Achievement : Actor abstract
   property border        : border;
 
 } // class sa_Achievement
+
+class sa_TestAchievement : sa_Achievement
+{
+  Default
+  {
+    sa_Achievement.name "Test name";
+    sa_Achievement.description "Test description";
+    sa_Achievement.limit 999999;
+    sa_Achievement.isProgressVisible true;
+  }
+} // class sa_TestAchievement
 
 class sa_Task abstract
 {
