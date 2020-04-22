@@ -200,14 +200,14 @@ class sa_Achievement : Actor abstract
 
   Default
   {
-    sa_Achievement.title       "Achievement Unlocked!"; // General title for achievements.
-    sa_Achievement.name        "You did something.";    // Specific name for this achievement.
-    sa_Achievement.description "Explained something!";  // Specific description for this achievement.
+    sa_Achievement.title       "$SA_UNLOCKED";    // General title for achievements.
+    sa_Achievement.name        "$SA_NAME";        // Specific name for this achievement.
+    sa_Achievement.description "$SA_DESCRIPTION"; // Specific description for this achievement.
 
     // Must be > 0. When limit is > 1, unlocking this achievement requires progress.
     sa_Achievement.limit 1;
     // Text that will be shown on achievement progres.
-    sa_Achievement.progressTitle "Achievement Progress: ";
+    sa_Achievement.progressTitle "$SA_PROGRESS";
     sa_Achievement.isProgressVisible false;
 
     // Overall duration of achievement notification, including animation.
@@ -306,15 +306,18 @@ class sa_Task abstract
     if (isProgress)
     {
       mText = String.format( "%s%d/%d\n%s"
-                           , achievement.progressTitle
+                           , StringTable.localize(achievement.progressTitle)
                            , count
                            , achievement.limit
-                           , achievement.name
+                           , StringTable.localize(achievement.name)
                            );
     }
     else
     {
-      mText = String.format("%s\n%s", achievement.title, achievement.name);
+      mText = String.format( "%s\n%s"
+                           , StringTable.localize(achievement.title)
+                           , StringTable.localize(achievement.name)
+                           );
     }
 
     mNLines        = countLines(mText);

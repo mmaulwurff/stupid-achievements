@@ -1,6 +1,13 @@
 [enu default]
 
-// Options Menu ////////////////////////////////////////////////////////////////
+// Default values //////////////////////////////////////////////////////////////
+
+SA_UNLOCKED    = "Achievement Unlocked!";
+SA_NAME        = "You did something.";
+SA_DESCRIPTION = "Explained something!";
+SA_PROGRESS    = "Achievement Progress: ";
+
+// Options menu ////////////////////////////////////////////////////////////////
 
 SA_MENU_TITLE = "Stupid Achievements Options";
 SA_HORIZONTAL = "Horizontal position";
@@ -17,5 +24,3 @@ SA_SLIDE_VERTICAL   = "Slide vertically";
 SA_SLIDE_HORIZONTAL = "Slide horizontally";
 SA_FADE_IN_OUT      = "Fade in/fade out";
 SA_DISABLED         = "Disabled";
-
-//
