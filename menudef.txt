@@ -1,12 +1,19 @@
+// Entry point /////////////////////////////////////////////////////////////////
+
 AddOptionMenu OptionsMenu
 {
   Submenu "$SA_MENU_TITLE", sa_Options
 }
 
+// Option menus ////////////////////////////////////////////////////////////////
+
 OptionMenu sa_Options
 {
   Title "$SA_MENU_TITLE"
 
+  Submenu "$SA_VIEW_ACHIEVEMENTS", sa_AchievementList
+
+  StaticText ""
   Option "$SA_HORIZONTAL", sa_horizontal_position, sa_HorizontalPositionValues
   Option "$SA_VERTICAL"  , sa_vertical_position,   sa_VerticalPositionValues
   Option "$SA_ANIMATION" , sa_animation_type,      sa_AnimationValues
@@ -17,6 +24,14 @@ OptionMenu sa_Options
   StaticText ""
   SafeCommand "$SA_CLEAR", sa_clear_achievements
 }
+
+OptionMenu sa_AchievementList
+{
+  Class "sa_AchievementList"
+  Title "$SA_VIEW_ACHIEVEMENTS_TITLE"
+}
+
+// Option values ///////////////////////////////////////////////////////////////
 
 OptionValue sa_HorizontalPositionValues
 {

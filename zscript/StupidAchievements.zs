@@ -285,6 +285,90 @@ class sa_TestAchievement : sa_Achievement
   }
 } // class sa_TestAchievement
 
+class sa // namespace
+{
+
+  static
+  String makeFullText(readonly<sa_Achievement> achievement, bool isProgress, int count)
+  {
+    return isProgress
+      ? String.format( "%s%d/%d\n%s"
+                     , StringTable.localize(achievement.progressTitle)
+                     , count
+                     , achievement.limit
+                     , StringTable.localize(achievement.name)
+                     )
+      : String.format( "%s\n%s"
+                     , StringTable.localize(achievement.title)
+                     , StringTable.localize(achievement.name)
+                     );
+  }
+
+  static
+  void drawAchievement( int textX, int textY
+                      , int boxX, int boxY
+                      , int borderX, int borderY
+                      , int borderWidth, int borderHeight
+                      , int boxWidth, int boxHeight
+                      , double alpha
+                      , TextureID texture
+                      , int borderColor
+                      , int boxColor
+                      , Font fnt
+                      , int textColor
+                      , String text
+                      )
+  {
+    // border
+    Screen.DrawTexture( texture // not needed here, really, but something has to be here.
+                      , NO_ANIMATION
+                      , borderX
+                      , borderY
+                      , DTA_DestWidth  , borderWidth
+                      , DTA_DestHeight , borderHeight
+                      , DTA_FillColor  , borderColor
+                      , DTA_Alpha      , alpha
+                      );
+
+    // box
+    Screen.DrawTexture( texture
+                      , NO_ANIMATION
+                      , boxX
+                      , boxY
+                      , DTA_DestWidth    , boxWidth
+                      , DTA_DestHeight   , boxHeight
+                      , DTA_FillColor    , boxColor
+                      , DTA_AlphaChannel , true
+                      , DTA_Alpha        , alpha
+                      );
+
+    // text
+    Screen.DrawText( fnt
+                   , textColor
+                   , textX
+                   , textY
+                   , text
+                   , DTA_Alpha         , alpha
+                   , DTA_CleanNoMove_1 , true
+                   );
+  }
+
+  static
+  int countLines(String s)
+  {
+    int nBytes = s.length();
+    int nLines = 1;
+    for (int i = 0; i < nBytes; ++i)
+    {
+      nLines += (s.byteAt(i) == 10);
+    }
+    return nLines;
+  }
+
+  const NO_ANIMATION = 0; // == false
+
+} // sa_ namespace
+
 class sa_Task abstract
 {
 
@@ -303,24 +387,8 @@ class sa_Task abstract
 
   void init(readonly<sa_Achievement> achievement, bool isProgress, int count)
   {
-    if (isProgress)
-    {
-      mText = String.format( "%s%d/%d\n%s"
-                           , StringTable.localize(achievement.progressTitle)
-                           , count
-                           , achievement.limit
-                           , StringTable.localize(achievement.name)
-                           );
-    }
-    else
-    {
-      mText = String.format( "%s\n%s"
-                           , StringTable.localize(achievement.title)
-                           , StringTable.localize(achievement.name)
-                           );
-    }
-
-    mNLines        = countLines(mText);
+    mText   = sa.makeFullText(achievement, isProgress, count);
+    mNLines = sa.countLines(mText);
 
     mLifetime      = achievement.lifetime;
     mAnimationTime = achievement.animationTime;
@@ -355,18 +423,6 @@ class sa_Task abstract
   protected sa_Cvar mHorizontalPositionCvar;
   protected sa_Cvar mVerticalPositionCvar;
 
-  private
-  int countLines(String s)
-  {
-    int nBytes = s.length();
-    int nLines = 1;
-    for (int i = 0; i < nBytes; ++i)
-    {
-      nLines += (s.byteAt(i) == 10);
-    }
-    return nLines;
-  }
-
 } // class sa_Task abstract
 
 class sa_NoAnimationTask : sa_Task
@@ -389,6 +445,7 @@ class sa_NoAnimationTask : sa_Task
 
     int textX   = x + mMargin + mBorder;
     int textY   = y + mMargin + mBorder;
+
     int boxX    = x + mBorder;
     int boxY    = y + mBorder;
     int borderX = x;
@@ -396,40 +453,20 @@ class sa_NoAnimationTask : sa_Task
 
     double alpha = getAlpha(levelTime, fracTic);
 
-    // border
-    Screen.DrawTexture( mTexture // not needed here, really, but something has to be here.
-                      , NO_ANIMATION
-                      , borderX
-                      , borderY
-                      , DTA_DestWidth  , borderWidth
-                      , DTA_DestHeight , borderHeight
-                      , DTA_FillColor  , mBorderColor
-                      , DTA_Alpha      , alpha
+    sa.drawAchievement( textX, textY
+                      , boxX, boxY
+                      , borderX, borderY
+                      , borderWidth, borderHeight
+                      , boxWidth, boxHeight
+                      , alpha
+                      , mTexture
+                      , mBorderColor
+                      , mBoxColor
+                      , mFont
+                      , mTextColor
+                      , mText
                       );
-
-    // box
-    Screen.DrawTexture( mTexture
-                      , NO_ANIMATION
-                      , boxX
-                      , boxY
-                      , DTA_DestWidth    , boxWidth
-                      , DTA_DestHeight   , boxHeight
-                      , DTA_FillColor    , mBoxColor
-                      , DTA_AlphaChannel , true
-                      , DTA_Alpha        , alpha
-                      );
-
-    // text
-    Screen.DrawText( mFont
-                   , mTextColor
-                   , textX
-                   , textY
-                   , mText
-                   , DTA_Alpha         , alpha
-                   , DTA_CleanNoMove_1 , true
-                   );
   }
-
   enum HorizontalPosition
   {
     HPOS_LEFT,
@@ -470,8 +507,6 @@ class sa_NoAnimationTask : sa_Task
 
     return x, y;
   }
-
-  const NO_ANIMATION = 0; // == false
 
 } // class sa_NoAnimationTask
 
@@ -668,3 +703,132 @@ class sa_Cvar
   private transient Cvar  _cvar;
 
 } // class tt_Cvar
+
+class sa_AchievementList : OptionMenu
+{
+
+  override
+  void Init(Menu parent, OptionMenuDescriptor desc)
+  {
+    Super.Init(parent, desc);
+
+    // this function is called each time menu is opened, so remove everything.
+    mDesc.mItems.clear();
+    add(new("OptionMenuItemStaticText").init("Unlocked achievements"));
+    addLine();
+
+    Cvar   c          = Cvar.getCvar("sa_achievements");
+    String serialized = c.getString();
+    let    dict       = Dictionary.fromString(serialized);
+
+    uint nClasses = AllActorClasses.size();
+    for (uint i = 0; i < nClasses; ++i)
+    {
+      let c = AllActorClasses[i];
+      if (c is "sa_Achievement")
+      {
+        String name = c.getClassName();
+
+        if (name == "sa_Achievement" || name == "sa_TestAchievement")
+        {
+          //continue;
+        }
+
+        let achievement = sa_Achievement(getDefaultByType(c));
+        int count       = dict.at(name).toInt();
+        add(new("sa_AchievementItem").init(achievement, count));
+
+        addLine();
+        addLine();
+        addLine();
+      }
+    }
+
+    mDesc.mScrollPos    = 0;
+    mDesc.mSelectedItem = 0;
+    mDesc.CalcIndent();
+  }
+
+  private
+  void add(OptionMenuItem item)
+  {
+    mDesc.mItems.push(item);
+  }
+
+  private
+  void addLine()
+  {
+    add(new("OptionMenuItemStaticText").init(""));
+  }
+
+} // class sa_AchievementList
+
+class sa_AchievementItem : OptionMenuItemCommand
+{
+
+  sa_AchievementItem init(readonly<sa_Achievement> achievement, int count)
+  {
+    mAchievement = achievement;
+    mText = String.format( "%s\n%s"
+                         , sa.makeFullText( achievement
+                                          , achievement.isProgressVisible
+                                          , count
+                                          )
+                         , StringTable.localize(achievement.description)
+                         );
+    mNLines  = sa.countLines(mText);
+    mFont    = Font.GetFont(achievement.fontName);
+    mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
+
+    Super.init("", "", centered: true);
+    return self;
+  }
+
+  override
+  int draw(OptionMenuDescriptor desc, int textY, int x, bool selected)
+  {
+    int textWidth  = CleanXFac_1 * mFont.stringWidth(mText);
+    int textHeight = CleanYFac_1 * mFont.getHeight() * mNLines;
+
+    int textX = (Screen.getWidth() - textWidth) / 2;
+
+    int horizontalMargin = mFont.getHeight() / 4;
+
+    int boxWidth  = mAchievement.margin * 2 + textWidth;
+    int boxHeight = horizontalMargin    * 2 + textHeight;
+
+    int borderWidth  = mAchievement.border * 2 + boxWidth;
+    int borderHeight = mAchievement.border * 2 + boxHeight;
+
+    int boxX    = textX - mAchievement.margin;
+    int boxY    = textY - horizontalMargin;
+
+    int borderX = boxX - mAchievement.border;
+    int borderY = boxY - mAchievement.border;
+
+    sa.drawAchievement( textX, textY
+                      , boxX, boxY
+                      , borderX, borderY
+                      , borderWidth, borderHeight
+                      , boxWidth, boxHeight
+                      , OPAQUE
+                      , mTexture
+                      , mAchievement.borderColor
+                      , mAchievement.boxColor
+                      , mFont
+                      , mAchievement.textColor
+                      , mText
+                      );
+
+    return textX - 16 * CleanXfac_1;
+  }
+
+  const OPAQUE = 1.0;
+
+  private readonly<sa_Achievement> mAchievement;
+  private String mText;
+  private Font   mFont;
+  private int    mNLines;
+  private TextureID mTexture;
+
+} // class sa_AchievementItem
