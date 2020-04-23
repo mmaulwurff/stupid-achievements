@@ -805,13 +805,13 @@ class sa_AchievementItem : OptionMenuItemCommand
     mAchievement = achievement;
     mStatus      = (count < achievement.limit) ? sa_.LOCKED : sa_.UNLOCKED;
 
-    String preamble = (mStatus == sa_.LOCKED)
-      ? String.format("Progress: %d/%d\n", count, achievement.limit)
+    String progress = (mStatus == sa_.LOCKED)
+      ? String.format("\nProgress: %d/%d", count, achievement.limit)
       : "";
-    mText = String.format( "%s%s\n%s"
-                         , preamble
+    mText = String.format( "%s\n%s%s"
                          , StringTable.localize(achievement.name)
                          , StringTable.localize(achievement.description)
+                         , progress
                          );
     mNLines  = sa_.countLines(mText);
     mFont    = Font.GetFont(achievement.fontName);
@@ -834,20 +834,22 @@ class sa_AchievementItem : OptionMenuItemCommand
   override
   int draw(OptionMenuDescriptor desc, int textY, int x, bool selected)
   {
-    int textWidth  = CleanXFac_1 * mFont.stringWidth(mText);
+    int menuOffset = 16 * CleanXfac_1;
+
+    int textWidth  = Screen.getWidth() * 0.6;
     int textHeight = CleanYFac_1 * mFont.getHeight() * mNLines;
 
     int textX = (Screen.getWidth() - textWidth) / 2;
 
     int horizontalMargin = mFont.getHeight() / 4;
 
-    int boxWidth  = mAchievement.margin * 2 + textWidth;
+    int boxWidth  = mAchievement.margin * 2 + textWidth + 2 * menuOffset;
     int boxHeight = horizontalMargin    * 2 + textHeight;
 
     int borderWidth  = mAchievement.border * 2 + boxWidth;
     int borderHeight = mAchievement.border * 2 + boxHeight;
 
-    int boxX    = textX - mAchievement.margin;
+    int boxX    = textX - mAchievement.margin - menuOffset;
     int boxY    = textY - horizontalMargin;
 
     int borderX = boxX - mAchievement.border;
@@ -867,7 +869,7 @@ class sa_AchievementItem : OptionMenuItemCommand
                        , mText
                        );
 
-    return textX - 16 * CleanXfac_1;
+    return textX - menuOffset;
   }
 
   const OPAQUE = 1.0;
