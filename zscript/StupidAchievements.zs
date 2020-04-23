@@ -285,8 +285,14 @@ class sa_TestAchievement : sa_Achievement
   }
 } // class sa_TestAchievement
 
-class sa // namespace
+class sa_ // namespace
 {
+
+  enum Status
+  {
+    LOCKED,
+    UNLOCKED
+  }
 
   static
   String makeFullText(readonly<sa_Achievement> achievement, bool isProgress, int count)
@@ -387,8 +393,8 @@ class sa_Task abstract
 
   void init(readonly<sa_Achievement> achievement, bool isProgress, int count)
   {
-    mText   = sa.makeFullText(achievement, isProgress, count);
-    mNLines = sa.countLines(mText);
+    mText   = sa_.makeFullText(achievement, isProgress, count);
+    mNLines = sa_.countLines(mText);
 
     mLifetime      = achievement.lifetime;
     mAnimationTime = achievement.animationTime;
@@ -453,19 +459,19 @@ class sa_NoAnimationTask : sa_Task
 
     double alpha = getAlpha(levelTime, fracTic);
 
-    sa.drawAchievement( textX, textY
-                      , boxX, boxY
-                      , borderX, borderY
-                      , borderWidth, borderHeight
-                      , boxWidth, boxHeight
-                      , alpha
-                      , mTexture
-                      , mBorderColor
-                      , mBoxColor
-                      , mFont
-                      , mTextColor
-                      , mText
-                      );
+    sa_.drawAchievement( textX, textY
+                       , boxX, boxY
+                       , borderX, borderY
+                       , borderWidth, borderHeight
+                       , boxWidth, boxHeight
+                       , alpha
+                       , mTexture
+                       , mBorderColor
+                       , mBoxColor
+                       , mFont
+                       , mTextColor
+                       , mText
+                       );
   }
   enum HorizontalPosition
   {
@@ -707,18 +713,15 @@ class sa_Cvar
 class sa_AchievementList : OptionMenu
 {
 
-  override
-  void Init(Menu parent, OptionMenuDescriptor desc)
+  protected
+  void fill(Menu parent, OptionMenuDescriptor desc, int status)
   {
-    Super.Init(parent, desc);
+    Super.init(parent, desc);
 
     // this function is called each time menu is opened, so remove everything.
     mDesc.mItems.clear();
-    add(new("OptionMenuItemStaticText").init("Unlocked achievements"));
-    addLine();
 
-    Cvar   c          = Cvar.getCvar("sa_achievements");
-    String serialized = c.getString();
+    String serialized = Cvar.getCvar("sa_achievements").getString();
     let    dict       = Dictionary.fromString(serialized);
 
     uint nClasses = AllActorClasses.size();
@@ -731,21 +734,30 @@ class sa_AchievementList : OptionMenu
 
         if (name == "sa_Achievement" || name == "sa_TestAchievement")
         {
-          //continue;
+          continue;
         }
 
         let achievement = sa_Achievement(getDefaultByType(c));
         int count       = dict.at(name).toInt();
-        add(new("sa_AchievementItem").init(achievement, count));
+        let item        = new("sa_AchievementItem").init(achievement, count);
 
-        addLine();
-        addLine();
-        addLine();
+        if (item.getStatus() != status)
+        {
+          continue;
+        }
+
+        int nLines = item.getNLines();
+
+        add(item);
+        for (int i = 0; i < nLines; ++i)
+        {
+          addLine();
+        }
       }
     }
 
     mDesc.mScrollPos    = 0;
-    mDesc.mSelectedItem = 0;
+    mDesc.mSelectedItem = FirstSelectable();
     mDesc.CalcIndent();
   }
 
@@ -763,25 +775,60 @@ class sa_AchievementList : OptionMenu
 
 } // class sa_AchievementList
 
+class sa_UnlockedAchievements : sa_AchievementList
+{
+
+  override
+  void init(Menu parent, OptionMenuDescriptor desc)
+  {
+    fill(parent, desc, sa_.UNLOCKED);
+  }
+
+} // class sa_UnlockedAchievements
+
+class sa_LockedAchievements : sa_AchievementList
+{
+
+  override
+  void init(Menu parent, OptionMenuDescriptor desc)
+  {
+    fill(parent, desc, sa_.LOCKED);
+  }
+
+} // class sa_AchievementList
+
 class sa_AchievementItem : OptionMenuItemCommand
 {
 
   sa_AchievementItem init(readonly<sa_Achievement> achievement, int count)
   {
     mAchievement = achievement;
-    mText = String.format( "%s\n%s"
-                         , sa.makeFullText( achievement
-                                          , achievement.isProgressVisible
-                                          , count
-                                          )
+    mStatus      = (count < achievement.limit) ? sa_.LOCKED : sa_.UNLOCKED;
+
+    String preamble = (mStatus == sa_.LOCKED)
+      ? String.format("Progress: %d/%d\n", count, achievement.limit)
+      : "";
+    mText = String.format( "%s%s\n%s"
+                         , preamble
+                         , StringTable.localize(achievement.name)
                          , StringTable.localize(achievement.description)
                          );
-    mNLines  = sa.countLines(mText);
+    mNLines  = sa_.countLines(mText);
     mFont    = Font.GetFont(achievement.fontName);
     mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
 
     Super.init("", "", centered: true);
     return self;
+  }
+
+  int getNLines()
+  {
+    return mNLines;
+  }
+
+  int getStatus()
+  {
+    return mStatus;
   }
 
   override
@@ -806,19 +853,19 @@ class sa_AchievementItem : OptionMenuItemCommand
     int borderX = boxX - mAchievement.border;
     int borderY = boxY - mAchievement.border;
 
-    sa.drawAchievement( textX, textY
-                      , boxX, boxY
-                      , borderX, borderY
-                      , borderWidth, borderHeight
-                      , boxWidth, boxHeight
-                      , OPAQUE
-                      , mTexture
-                      , mAchievement.borderColor
-                      , mAchievement.boxColor
-                      , mFont
-                      , mAchievement.textColor
-                      , mText
-                      );
+    sa_.drawAchievement( textX, textY
+                       , boxX, boxY
+                       , borderX, borderY
+                       , borderWidth, borderHeight
+                       , boxWidth, boxHeight
+                       , OPAQUE
+                       , mTexture
+                       , mAchievement.borderColor
+                       , mAchievement.boxColor
+                       , mFont
+                       , mAchievement.textColor
+                       , mText
+                       );
 
     return textX - 16 * CleanXfac_1;
   }
@@ -830,5 +877,6 @@ class sa_AchievementItem : OptionMenuItemCommand
   private Font   mFont;
   private int    mNLines;
   private TextureID mTexture;
+  private int    mStatus;
 
 } // class sa_AchievementItem

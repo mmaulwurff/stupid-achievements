@@ -11,7 +11,9 @@ OptionMenu sa_Options
 {
   Title "$SA_MENU_TITLE"
 
-  Submenu "$SA_VIEW_ACHIEVEMENTS", sa_AchievementList
+  StaticText "$SA_ACHIEVEMENTS", 1
+  Submenu "$SA_UNLOCKED", sa_UnlockedAchievements
+  Submenu "$SA_LOCKED"  , sa_LockedAchievements
 
   StaticText ""
   Option "$SA_HORIZONTAL", sa_horizontal_position, sa_HorizontalPositionValues
@@ -25,10 +27,16 @@ OptionMenu sa_Options
   SafeCommand "$SA_CLEAR", sa_clear_achievements
 }
 
-OptionMenu sa_AchievementList
+OptionMenu sa_LockedAchievements
 {
-  Class "sa_AchievementList"
-  Title "$SA_VIEW_ACHIEVEMENTS_TITLE"
+  Class "sa_LockedAchievements"
+  Title "$SA_LOCKED_TITLE"
+}
+
+OptionMenu sa_UnlockedAchievements
+{
+  Class "sa_UnlockedAchievements"
+  Title "$SA_UNLOCKED_TITLE"
 }
 
 // Option values ///////////////////////////////////////////////////////////////

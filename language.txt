@@ -25,5 +25,8 @@ SA_SLIDE_HORIZONTAL = "Slide horizontally";
 SA_FADE_IN_OUT      = "Fade in/fade out";
 SA_DISABLED         = "Disabled";
 
-SA_VIEW_ACHIEVEMENTS = "View achievements";
-SA_VIEW_ACHIEVEMENTS_TITLE = "Achievements";
+SA_ACHIEVEMENTS   = "Achievements";
+SA_LOCKED         = "Locked";
+SA_UNLOCKED       = "Unlocked";
+SA_LOCKED_TITLE   = "Locked Achievements";
+SA_UNLOCKED_TITLE = "Unlocked Achievements";
