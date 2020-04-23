@@ -40,50 +40,49 @@ class ia_EventHandler : EventHandler
 
 } // class ia_EventHandler
 
-class ia_Base : sa_Achievement
-{
-  Default
-  {
-    sa_Achievement.borderColor 0xDD2222;
-    sa_Achievement.boxColor    0xDDDD22;
-  }
-}
-
-class ia_OneKill : ia_Base
+class ia_OneKill : sa_Achievement
 {
   Default
   {
     sa_Achievement.name "Initiate";
     sa_Achievement.description "Kill one imp";
+    sa_Achievement.borderColor 0xDD2222;
+    sa_Achievement.boxColor    0xFFFFFF;
   }
 }
 
-class ia_TenKills : ia_Base
+class ia_TenKills : sa_Achievement
 {
   Default
   {
     sa_Achievement.name "Imp Killer";
     sa_Achievement.description "Kill 10 imps";
     sa_Achievement.limit 10;
+    sa_Achievement.borderColor 0xDD2222;
+    sa_Achievement.boxColor    0xDDDD22;
   }
 }
 
-class ia_100Kills : ia_Base
+class ia_100Kills : sa_Achievement
 {
   Default
   {
     sa_Achievement.name "Imp Exterminator";
     sa_Achievement.description "Kill 100 imps";
     sa_Achievement.limit 100;
+    sa_Achievement.borderColor 0xDD2222;
+    sa_Achievement.boxColor    0xDD6622;
   }
 }
 
-class ia_666Kills : ia_Base
+class ia_666Kills : sa_Achievement
 {
   Default
   {
     sa_Achievement.name "Imp Slayer";
     sa_Achievement.description "Kill 666 imps";
     sa_Achievement.limit 666;
+    sa_Achievement.borderColor 0xDD2222;
+    sa_Achievement.boxColor    0x000000;
   }
 }
