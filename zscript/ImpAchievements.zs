@@ -19,6 +19,19 @@ class ia_EventHandler : EventHandler
 {
 
   override
+  void worldLoaded(WorldEvent event)
+  {
+    String className = "Z_SpriteShadow";
+    class<Actor> c = className;
+    bool isSpriteShadowLoaded = (c != NULL);
+
+    if (isSpriteShadowLoaded && isImpsPresent())
+    {
+      sa_Achiever.achieve("ia_Shadow");
+    }
+  }
+
+  override
   void worldThingDied(WorldEvent event)
   {
     if (isImp(event.thing))
@@ -31,7 +44,7 @@ class ia_EventHandler : EventHandler
   }
 
   override
-  void WorldThingDamaged(WorldEvent event)
+  void worldThingDamaged(WorldEvent event)
   {
     if (isImp(event.thing) && event.damagetype == "Telefrag")
     {
@@ -45,6 +58,18 @@ class ia_EventHandler : EventHandler
     bool isReplacingImp = ("DoomImp" == Actor.getReplacee(a.getClass()));
     bool isBasedOnImp   = (a is "DoomImp");
     return (isReplacingImp || isBasedOnImp);
+  }
+
+  private
+  bool isImpsPresent()
+  {
+    let i = ThinkerIterator.create();
+    Actor a;
+    while (a = Actor(i.next()))
+    {
+      if (isImp(a)) return true;
+    }
+    return false;
   }
 
 } // class ia_EventHandler
@@ -105,5 +130,16 @@ class ia_Telefrag : sa_Achievement
     sa_Achievement.borderColor 0x509e43;
     sa_Achievement.boxColor    0xcaa53b;
     sa_Achievement.isHidden true;
+  }
+}
+
+class ia_Shadow : sa_Achievement
+{
+  Default
+  {
+    sa_Achievement.name "Shadowy";
+    sa_Achievement.description "Make an imp cast a shadow";
+    sa_Achievement.borderColor 0x555555;
+    sa_Achievement.boxColor    0x000000;
   }
 }
