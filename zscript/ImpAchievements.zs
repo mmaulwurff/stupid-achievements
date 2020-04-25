@@ -64,9 +64,15 @@ class ia_EventHandler : EventHandler
   override
   void worldThingDamaged(WorldEvent event)
   {
-    if (isImp(event.thing) && event.damagetype == "Telefrag")
+    if (!isImp(event.thing)) return;
+
+    if (event.damagetype == "Telefrag")
     {
       sa_Achiever.achieve("ia_Telefrag");
+    }
+    else if (event.damagetype == "Melee")
+    {
+      sa_Achiever.achieve("ia_Melee");
     }
   }
 
@@ -183,5 +189,15 @@ class ia_Overkill : sa_Achievement
   {
     sa_Achievement.name "Overkill";
     sa_Achievement.description "Kill an imp more than usual";
+  }
+}
+
+class ia_Melee : sa_Achievement
+{
+  Default
+  {
+    sa_Achievement.name "Come closer";
+    sa_Achievement.description "Hit imps 100 times with melee attack\n\nCome here... Now we are talking!";
+    sa_Achievement.limit 100;
   }
 }
