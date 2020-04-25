@@ -2,7 +2,7 @@
 
 // Default values //////////////////////////////////////////////////////////////
 
-SA_UNLOCKED    = "Achievement Unlocked!";
+SA_TITLE       = "Achievement Unlocked!";
 SA_NAME        = "You did something.";
 SA_DESCRIPTION = "Explained something!";
 SA_PROGRESS    = "Achievement Progress: ";

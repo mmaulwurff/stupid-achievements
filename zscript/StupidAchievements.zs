@@ -200,19 +200,32 @@ class sa_Achievement : Actor abstract
 
   Default
   {
-    sa_Achievement.title       "$SA_UNLOCKED";    // General title for achievements.
-    sa_Achievement.name        "$SA_NAME";        // Specific name for this achievement.
-    sa_Achievement.description "$SA_DESCRIPTION"; // Specific description for this achievement.
+    // General title for achievements.
+    sa_Achievement.title "$SA_TITLE";
+
+    // Specific name for this achievement.
+    sa_Achievement.name "$SA_NAME";
+
+    // Specific description for this achievement.
+    sa_Achievement.description "$SA_DESCRIPTION";
 
     // Must be > 0. When limit is > 1, unlocking this achievement requires progress.
     sa_Achievement.limit 1;
+
     // Text that will be shown on achievement progres.
     sa_Achievement.progressTitle "$SA_PROGRESS";
+
+    // True if a notification is shown each time this achievement progress advances.
     sa_Achievement.isProgressVisible false;
+
+    // Hidden achievements don't show up in Locked achievement list, and are only
+    // visible when are achieved.
+    sa_Achievement.isHidden false;
 
     // Overall duration of achievement notification, including animation.
     // In tics, 35 tics is a second.
-    sa_Achievement.lifetime      35 * 3;
+    sa_Achievement.lifetime 35 * 3;
+
     // Duration of animation of achievement notification.
     // Notification can be not animated, see sa_animation_type Cvar.
     // If the notification is animated, there are two animations: appearing and disappearing.
@@ -222,14 +235,24 @@ class sa_Achievement : Actor abstract
     // Background alpha map texture. Default: gradient to background, top to bottom.
     // Must exist.
     // Will be mercilessly scaled to box width and height.
-    sa_Achievement.texture     "sa_gradb";
-    sa_Achievement.fontName    "NewSmallFont";
-    sa_Achievement.borderColor 0x222222; // Border and background color. RGB: 0xRRGGBB.
-    sa_Achievement.boxColor    0x2222AA; // Foreground color. RGB: 0xRRGGBB.
-    sa_Achievement.textColor   Font.CR_White; // Text color. See Font struct for available colors.
+    sa_Achievement.texture "sa_gradb";
 
-    sa_Achievement.margin 10; // px, space between text and border.
-    sa_Achievement.border  1; // px, border width.
+    sa_Achievement.fontName "NewSmallFont";
+
+    // Border and background color. RGB: 0xRRGGBB.
+    sa_Achievement.borderColor 0x222222;
+
+    // Foreground color. RGB: 0xRRGGBB.
+    sa_Achievement.boxColor 0x2222AA;
+
+    // Text color. See Font struct for available colors.
+    sa_Achievement.textColor Font.CR_White;
+
+    // px, space between text and border.
+    sa_Achievement.margin 10;
+
+    // px, border width.
+    sa_Achievement.border 1;
   }
 
   String title;
@@ -252,25 +275,24 @@ class sa_Achievement : Actor abstract
   int margin;
   int border;
 
+  bool isHidden;
+
   property title         : title;
   property name          : name;
   property description   : description;
-
   property limit         : limit;
   property progressTitle : progressTitle;
   property isProgressVisible : isProgressVisible;
-
   property lifetime      : lifetime;
   property animationTime : animationTime;
-
   property fontName      : fontName;
   property texture       : texture;
   property borderColor   : borderColor;
   property boxColor      : boxColor;
   property textColor     : textColor;
-
   property margin        : margin;
   property border        : border;
+  property isHidden      : isHidden;
 
 } // class sa_Achievement
 
@@ -383,7 +405,7 @@ class sa_Task abstract
 
   bool isFinished(int levelTime) const
   {
-    return levelTime > mBirthTime + mLifetime;
+    return levelTime > mBirthTime + mAchievement.lifetime;
   }
 
   void start()
@@ -393,36 +415,23 @@ class sa_Task abstract
 
   void init(readonly<sa_Achievement> achievement, bool isProgress, int count)
   {
-    mText   = sa_.makeFullText(achievement, isProgress, count);
-    mNLines = sa_.countLines(mText);
+    mAchievement = achievement;
 
-    mLifetime      = achievement.lifetime;
-    mAnimationTime = achievement.animationTime;
-
-    mFont          = Font.GetFont(achievement.fontName);
-    mTexture       = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
-    mBorderColor   = achievement.borderColor;
-    mBoxColor      = achievement.boxColor;
-    mTextColor     = achievement.textColor;
-
-    mMargin        = achievement.margin;
-    mBorder        = achievement.border;
+    mText    = sa_.makeFullText(achievement, isProgress, count);
+    mNLines  = sa_.countLines(mText);
+    mFont    = Font.GetFont(achievement.fontName);
+    mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
 
     mHorizontalPositionCvar = sa_Cvar.of("sa_horizontal_position");
     mVerticalPositionCvar   = sa_Cvar.of("sa_vertical_position");
   }
 
+  protected readonly<sa_Achievement> mAchievement;
+
   protected String    mText;
   protected int       mNLines;
-  protected int       mLifetime;
-  protected int       mAnimationTime;
   protected Font      mFont;
   protected TextureID mTexture;
-  protected int       mBorderColor;
-  protected int       mBoxColor;
-  protected int       mTextColor;
-  protected int       mMargin;
-  protected int       mBorder;
 
   protected int mBirthTime;
 
@@ -440,20 +449,20 @@ class sa_NoAnimationTask : sa_Task
     int textWidth    = CleanXFac_1 * mFont.stringWidth(mText);
     int textHeight   = CleanYFac_1 * mFont.getHeight() * mNLines;
 
-    int boxWidth     = mMargin * 2 + textWidth;
-    int boxHeight    = mMargin * 2 + textHeight;
+    int boxWidth     = mAchievement.margin * 2 + textWidth;
+    int boxHeight    = mAchievement.margin * 2 + textHeight;
 
-    int borderWidth  = mBorder * 2 + boxWidth;
-    int borderHeight = mBorder * 2 + boxHeight;
+    int borderWidth  = mAchievement.border * 2 + boxWidth;
+    int borderHeight = mAchievement.border * 2 + boxHeight;
 
     int x, y;
     [x, y] = getXY(borderWidth, borderHeight, levelTime, fracTic);
 
-    int textX   = x + mMargin + mBorder;
-    int textY   = y + mMargin + mBorder;
+    int textX   = x + mAchievement.margin + mAchievement.border;
+    int textY   = y + mAchievement.margin + mAchievement.border;
 
-    int boxX    = x + mBorder;
-    int boxY    = y + mBorder;
+    int boxX    = x + mAchievement.border;
+    int boxY    = y + mAchievement.border;
     int borderX = x;
     int borderY = y;
 
@@ -466,10 +475,10 @@ class sa_NoAnimationTask : sa_Task
                        , boxWidth, boxHeight
                        , alpha
                        , mTexture
-                       , mBorderColor
-                       , mBoxColor
+                       , mAchievement.borderColor
+                       , mAchievement.boxColor
                        , mFont
-                       , mTextColor
+                       , mAchievement.textColor
                        , mText
                        );
   }
@@ -547,13 +556,15 @@ class sa_AnimationTask : sa_NoAnimationTask abstract
   protected
   double getFractionIn(double time)
   {
-    return clamp(time / mAnimationTime, 0, 1);
+    return clamp(time / mAchievement.animationTime, 0, 1);
   }
 
   protected
   double getFractionOut(double time)
   {
-    return clamp((time - (mLifetime - mAnimationTime)) / mAnimationTime, 0, 1);
+    int lifetime      = mAchievement.lifetime;
+    int animationTime = mAchievement.animationTime;
+    return clamp((time - (lifetime - animationTime)) / animationTime, 0, 1);
   }
 
   protected static
@@ -575,7 +586,7 @@ class sa_SlideHorizontallyTask : sa_AnimationTask
     int targetX, targetY;
     [targetX, targetY] = super.getXY(width, height, levelTime, fracTic);
 
-    if (time < mAnimationTime)
+    if (time < mAchievement.animationTime)
     {
       // return slide in xy
       int    startX   = getStartX(width);
@@ -584,7 +595,7 @@ class sa_SlideHorizontallyTask : sa_AnimationTask
 
       return currentX, targetY;
     }
-    else if (time > mLifetime - mAnimationTime)
+    else if (time > mAchievement.lifetime - mAchievement.animationTime)
     {
       // return slide out xy
       int    startX   = getStartX(width);
@@ -613,7 +624,7 @@ class sa_SlideVerticallyTask : sa_AnimationTask
     int targetX, targetY;
     [targetX, targetY] = super.getXY(width, height, levelTime, fracTic);
 
-    if (time < mAnimationTime)
+    if (time < mAchievement.animationTime)
     {
       // return slide in xy
       int    startY   = getStartY(height);
@@ -622,7 +633,7 @@ class sa_SlideVerticallyTask : sa_AnimationTask
 
       return targetX, currentY;
     }
-    else if (time > mLifetime - mAnimationTime)
+    else if (time > mAchievement.lifetime - mAchievement.animationTime)
     {
       // return slide out xy
       int    startY   = getStartY(height);
@@ -648,11 +659,11 @@ class sa_FadeInOutTask : sa_AnimationTask
   {
     int time = levelTime - mBirthTime;
 
-    if (time < mAnimationTime)
+    if (time < mAchievement.animationTime)
     {
       return getFractionIn(time + fracTic);
     }
-    else if (time > mLifetime - mAnimationTime)
+    else if (time > mAchievement.lifetime - mAchievement.animationTime)
     {
       return 1 - getFractionOut(time + fracTic);
     }
@@ -746,6 +757,11 @@ class sa_AchievementList : OptionMenu
           continue;
         }
 
+        if (item.getStatus() == sa_.LOCKED && achievement.isHidden)
+        {
+          continue;
+        }
+
         int nLines = item.getNLines();
 
         add(item);
@@ -805,7 +821,7 @@ class sa_AchievementItem : OptionMenuItemCommand
     mAchievement = achievement;
     mStatus      = (count < achievement.limit) ? sa_.LOCKED : sa_.UNLOCKED;
 
-    String progress = (mStatus == sa_.LOCKED)
+    String progress = (mStatus == sa_.LOCKED && count > 0)
       ? String.format("\nProgress: %d/%d", count, achievement.limit)
       : "";
     mText = String.format( "%s\n%s%s"

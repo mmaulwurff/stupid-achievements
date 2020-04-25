@@ -30,6 +30,15 @@ class ia_EventHandler : EventHandler
     }
   }
 
+  override
+  void WorldThingDamaged(WorldEvent event)
+  {
+    if (isImp(event.thing) && event.damagetype == "Telefrag")
+    {
+      sa_Achiever.achieve("ia_Telefrag");
+    }
+  }
+
   private
   bool isImp(Actor a)
   {
@@ -46,7 +55,7 @@ class ia_OneKill : sa_Achievement
   {
     sa_Achievement.name "Initiate";
     sa_Achievement.description "Kill one imp";
-    sa_Achievement.borderColor 0xDD2222;
+    sa_Achievement.borderColor 0xDDDD22;
     sa_Achievement.boxColor    0xFFFFFF;
   }
 }
@@ -70,8 +79,8 @@ class ia_100Kills : sa_Achievement
     sa_Achievement.name "Imp Exterminator";
     sa_Achievement.description "Kill 100 imps";
     sa_Achievement.limit 100;
-    sa_Achievement.borderColor 0xDD2222;
-    sa_Achievement.boxColor    0xDD6622;
+    sa_Achievement.borderColor 0x990000;
+    sa_Achievement.boxColor    0xDD2222;
   }
 }
 
@@ -82,7 +91,19 @@ class ia_666Kills : sa_Achievement
     sa_Achievement.name "Imp Slayer";
     sa_Achievement.description "Kill 666 imps";
     sa_Achievement.limit 666;
-    sa_Achievement.borderColor 0xDD2222;
-    sa_Achievement.boxColor    0x000000;
+    sa_Achievement.borderColor 0x000000;
+    sa_Achievement.boxColor    0x990000;
+  }
+}
+
+class ia_Telefrag : sa_Achievement
+{
+  Default
+  {
+    sa_Achievement.name "Telehopper";
+    sa_Achievement.description "Telefrag an imp";
+    sa_Achievement.borderColor 0x509e43;
+    sa_Achievement.boxColor    0xcaa53b;
+    sa_Achievement.isHidden true;
   }
 }
