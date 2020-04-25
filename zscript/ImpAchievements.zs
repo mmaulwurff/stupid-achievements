@@ -52,6 +52,11 @@ class ia_EventHandler : EventHandler
       sa_Achiever.achieve("ia_100Kills");
       sa_Achiever.achieve("ia_666Kills");
 
+      if (event.thing.health < -200)
+      {
+        sa_Achiever.achieve("ia_Overkill");
+      }
+
       mIsImpDied = true;
     }
   }
@@ -169,5 +174,14 @@ class ia_Friend : sa_Achievement
     sa_Achievement.description "Don't kill any imp on the level";
     sa_Achievement.borderColor 0x000000;
     sa_Achievement.boxColor    0x00AA00;
+  }
+}
+
+class ia_Overkill : sa_Achievement
+{
+  Default
+  {
+    sa_Achievement.name "Overkill";
+    sa_Achievement.description "Kill an imp more than usual";
   }
 }
