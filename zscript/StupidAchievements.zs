@@ -21,13 +21,17 @@
  * This file contains Stupid Achievements, achievement script for GZDoom.
  *
  * This file contains all the ZScript code needed for Stupid Achievements to work.
- *
- * From the user point of view, only two things are of interest here:
- *
- * 1. sa_Achiever.achieve(String achievementClass) function;
- * 2. sa_Achievement class.
  */
 
+/**************************************************************************************************\
+|*                                                                                                *|
+|* Public part. Two classes: sa_Achiever and sa_Achievement.                                      *|
+|*                                                                                                *|
+\**************************************************************************************************/
+
+/**
+ * Don't forget to add this event handler to the game via AddEventHandlers in MAPINFO lump.
+ */
 class sa_Achiever : EventHandler
 {
 
@@ -43,6 +47,93 @@ class sa_Achiever : EventHandler
    */
   static
   void achieve(Class<sa_Achievement> achievementClass)
+  {
+    achievePrivate(achievementClass);
+  }
+
+} // class sa_Achiever
+
+/**
+ * This class holds properties for achievements.
+ *
+ * To create your own achievements, subclass this class and override properties.
+ *
+ * This class is derived from Actor just to have properties. Do not spawn it or
+ * it descendants on the level.
+ */
+class sa_Achievement : Actor abstract
+{
+
+  Default
+  {
+    // General title for achievements.
+    sa_Achievement.title "$SA_TITLE";
+
+    // Specific name for this achievement.
+    sa_Achievement.name "$SA_NAME";
+
+    // Specific description for this achievement.
+    sa_Achievement.description "$SA_DESCRIPTION";
+
+    // Must be > 0. When limit is > 1, unlocking this achievement requires progress.
+    sa_Achievement.limit 1;
+
+    // Text that will be shown on achievement progres.
+    sa_Achievement.progressTitle "$SA_PROGRESS";
+
+    // True if a notification is shown each time this achievement progress advances.
+    sa_Achievement.isProgressVisible false;
+
+    // Hidden achievements don't show up in Locked achievement list, and are only
+    // visible when are achieved.
+    sa_Achievement.isHidden false;
+
+    // Overall duration of achievement notification, including animation.
+    // In tics, 35 tics is a second.
+    sa_Achievement.lifetime 35 * 3;
+
+    // Duration of animation of achievement notification.
+    // Notification can be not animated, see sa_animation_type Cvar.
+    // If the notification is animated, there are two animations: appearing and disappearing.
+    // In tics, 35 tics is a second.
+    sa_Achievement.animationTime 35 / 4;
+
+    // Background alpha map texture. Default: gradient to background, top to bottom.
+    // Must exist.
+    // Will be mercilessly scaled to box width and height.
+    sa_Achievement.texture "sa_gradb";
+
+    sa_Achievement.fontName "NewSmallFont";
+
+    // Border and background color. RGB: 0xRRGGBB.
+    sa_Achievement.borderColor 0x222222;
+
+    // Foreground color. RGB: 0xRRGGBB.
+    sa_Achievement.boxColor 0x2222AA;
+
+    // Text color. See Font struct for available colors.
+    sa_Achievement.textColor Font.CR_White;
+
+    // px, space between text and border.
+    sa_Achievement.margin 10;
+
+    // px, border width.
+    sa_Achievement.border 1;
+  }
+
+} // class sa_Achievement
+
+/**************************************************************************************************\
+|*                                                                                                *|
+|* Private part. Read only if you are interested in implementation details.                       *|
+|*                                                                                                *|
+\**************************************************************************************************/
+
+extend class sa_Achiever
+{
+
+  private static
+  void achievePrivate(Class<sa_Achievement> achievementClass)
   {
     let achievement = getDefaultByType(achievementClass);
     int count, state;
@@ -195,65 +286,8 @@ class sa_Achiever : EventHandler
 
 } // class sa_Achiever
 
-class sa_Achievement : Actor abstract
+extend class sa_Achievement
 {
-
-  Default
-  {
-    // General title for achievements.
-    sa_Achievement.title "$SA_TITLE";
-
-    // Specific name for this achievement.
-    sa_Achievement.name "$SA_NAME";
-
-    // Specific description for this achievement.
-    sa_Achievement.description "$SA_DESCRIPTION";
-
-    // Must be > 0. When limit is > 1, unlocking this achievement requires progress.
-    sa_Achievement.limit 1;
-
-    // Text that will be shown on achievement progres.
-    sa_Achievement.progressTitle "$SA_PROGRESS";
-
-    // True if a notification is shown each time this achievement progress advances.
-    sa_Achievement.isProgressVisible false;
-
-    // Hidden achievements don't show up in Locked achievement list, and are only
-    // visible when are achieved.
-    sa_Achievement.isHidden false;
-
-    // Overall duration of achievement notification, including animation.
-    // In tics, 35 tics is a second.
-    sa_Achievement.lifetime 35 * 3;
-
-    // Duration of animation of achievement notification.
-    // Notification can be not animated, see sa_animation_type Cvar.
-    // If the notification is animated, there are two animations: appearing and disappearing.
-    // In tics, 35 tics is a second.
-    sa_Achievement.animationTime 35 / 4;
-
-    // Background alpha map texture. Default: gradient to background, top to bottom.
-    // Must exist.
-    // Will be mercilessly scaled to box width and height.
-    sa_Achievement.texture "sa_gradb";
-
-    sa_Achievement.fontName "NewSmallFont";
-
-    // Border and background color. RGB: 0xRRGGBB.
-    sa_Achievement.borderColor 0x222222;
-
-    // Foreground color. RGB: 0xRRGGBB.
-    sa_Achievement.boxColor 0x2222AA;
-
-    // Text color. See Font struct for available colors.
-    sa_Achievement.textColor Font.CR_White;
-
-    // px, space between text and border.
-    sa_Achievement.margin 10;
-
-    // px, border width.
-    sa_Achievement.border 1;
-  }
 
   String title;
   String name;
@@ -852,7 +886,7 @@ class sa_AchievementItem : OptionMenuItemCommand
   {
     int menuOffset = 16 * CleanXfac_1;
 
-    int textWidth  = Screen.getWidth() * 0.6;
+    int textWidth  = int(round(Screen.getWidth() * 0.6));
     int textHeight = CleanYFac_1 * mFont.getHeight() * mNLines;
 
     int textX = (Screen.getWidth() - textWidth) / 2;
