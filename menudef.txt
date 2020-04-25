@@ -16,6 +16,7 @@ OptionMenu sa_Options
   Submenu "$SA_LOCKED"  , sa_LockedAchievements
 
   StaticText ""
+  Option "$SA_NOTIFY"    , sa_notification_enabled, OnOff
   Option "$SA_HORIZONTAL", sa_horizontal_position, sa_HorizontalPositionValues
   Option "$SA_VERTICAL"  , sa_vertical_position,   sa_VerticalPositionValues
   Option "$SA_ANIMATION" , sa_animation_type,      sa_AnimationValues

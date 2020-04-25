@@ -141,6 +141,11 @@ extend class sa_Achiever
 
     let me = sa_Achiever(EventHandler.find("sa_Achiever"));
 
+    if (!me.mNotificationEnabledCvar.getBool())
+    {
+      return;
+    }
+
     switch (state)
     {
     case STATE_UNLOCKED: addTask(me, achievement, false, 0); break;
@@ -188,7 +193,8 @@ extend class sa_Achiever
   override
   void onRegister()
   {
-    mAnimationTypeCvar = sa_Cvar.of("sa_animation_type");
+    mAnimationTypeCvar       = sa_Cvar.of("sa_animation_type");
+    mNotificationEnabledCvar = sa_Cvar.of("sa_notification_enabled");
   }
 
   override
@@ -283,6 +289,7 @@ extend class sa_Achiever
 
   private Array<sa_Task> mTasks;
   private sa_Cvar mAnimationTypeCvar;
+  private sa_Cvar mNotificationEnabledCvar;
 
 } // class sa_Achiever
 
