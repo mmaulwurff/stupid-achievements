@@ -29,6 +29,17 @@ class ia_EventHandler : EventHandler
     {
       sa_Achiever.achieve("ia_Shadow");
     }
+
+    mIsImpDied = false;
+  }
+
+  override
+  void worldUnloaded(WorldEvent event)
+  {
+    if (isImpsPresent() && !mIsImpDied)
+    {
+      sa_Achiever.achieve("ia_Friend");
+    }
   }
 
   override
@@ -40,6 +51,8 @@ class ia_EventHandler : EventHandler
       sa_Achiever.achieve("ia_TenKills");
       sa_Achiever.achieve("ia_100Kills");
       sa_Achiever.achieve("ia_666Kills");
+
+      mIsImpDied = true;
     }
   }
 
@@ -71,6 +84,8 @@ class ia_EventHandler : EventHandler
     }
     return false;
   }
+
+  private bool mIsImpDied;
 
 } // class ia_EventHandler
 
@@ -141,5 +156,18 @@ class ia_Shadow : sa_Achievement
     sa_Achievement.description "Make an imp cast a shadow";
     sa_Achievement.borderColor 0x555555;
     sa_Achievement.boxColor    0x000000;
+  }
+}
+
+// This achievement is kind of broken: notification doesn't have enough time
+// to show properly before the level ends.
+class ia_Friend : sa_Achievement
+{
+  Default
+  {
+    sa_Achievement.name "Imp Friend";
+    sa_Achievement.description "Don't kill any imp on the level";
+    sa_Achievement.borderColor 0x000000;
+    sa_Achievement.boxColor    0x00AA00;
   }
 }
