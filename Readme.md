@@ -25,3 +25,8 @@ Consists of two parts:
 
 - Please find and replace "sa_" namespace with your own to prevent conflicts.
 - License: GPLv3.
+
+## Acknowledgments
+
+Thanks to:
+- robert_banks for testing access to achievements from ACS.

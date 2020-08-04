@@ -46,7 +46,7 @@ class sa_Achiever : EventHandler
    * sa_Achiever.achieve("MyFirstAchievement");
    */
   static
-  void achieve(Class<sa_Achievement> achievementClass)
+  void achieve(String achievementClass)
   {
     achievePrivate(achievementClass);
   }
@@ -78,7 +78,7 @@ class sa_Achievement : Actor abstract
     // Must be > 0. When limit is > 1, unlocking this achievement requires progress.
     sa_Achievement.limit 1;
 
-    // Text that will be shown on achievement progres.
+    // Text that will be shown on achievement progress.
     sa_Achievement.progressTitle "$SA_PROGRESS";
 
     // True if a notification is shown each time this achievement progress advances.
