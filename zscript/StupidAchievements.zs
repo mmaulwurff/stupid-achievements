@@ -112,7 +112,8 @@ class sa_Achievement : Actor abstract
     sa_Achievement.boxColor 0x2222AA;
 
     // Achievement icon.
-    sa_Achievement.Icon "sa_icon";
+    sa_Achievement.lockedIcon "sa_lockedIcon";
+    sa_Achievement.unlockedIcon "sa_unlockedicon";
 
     // Text color. See Font struct for available colors.
     sa_Achievement.textColor Font.CR_White;
@@ -321,7 +322,8 @@ extend class sa_Achievement
 
   bool isHidden;
 
-  String icon;
+  String lockedIcon;
+  String unlockedIcon;
 
   property title         : title;
   property name          : name;
@@ -339,7 +341,8 @@ extend class sa_Achievement
   property margin        : margin;
   property border        : border;
   property isHidden      : isHidden;
-  property icon				   : icon;
+  property lockedIcon : lockedIcon;
+  property unlockedIcon : unlockedIcon;
 
 } // class sa_Achievement
 
@@ -351,7 +354,8 @@ class sa_TestAchievement : sa_Achievement
     sa_Achievement.description "Test description";
     sa_Achievement.limit 999999;
     sa_Achievement.isProgressVisible true;
-    sa_Achievement.icon "sa_icon";
+    sa_Achievement.lockedIcon "sa_lockedIcon";
+    sa_Achievement.unlockedIcon "sa_unlockedIcon";
   }
 } // class sa_TestAchievement
 
@@ -386,11 +390,11 @@ class sa_ // namespace
                       , int borderX, int borderY
                       , int borderWidth, int borderHeight
                       , int boxWidth, int boxHeight
-					            , int iconX, int iconY
-					            , int iconWidth, int iconHeight
+                      , int iconX, int iconY
+                      , int iconWidth, int iconHeight
                       , double alpha
                       , TextureID texture
-					            , TextureID Icon
+					   , TextureID Icon
                       , int borderColor
                       , int boxColor
                       , Font fnt
@@ -540,11 +544,11 @@ class sa_NoAnimationTask : sa_Task
                        , borderX, borderY
                        , borderWidth, borderHeight
                        , boxWidth, boxHeight
-					             , iconX, iconY
-					             , iconWidth, iconHeight
+                       , iconX, iconY
+                       , iconWidth, iconHeight
                        , alpha
                        , mTexture
-					             , mIcon
+                       , mIcon
                        , mAchievement.borderColor
                        , mAchievement.boxColor
                        , mFont
@@ -902,7 +906,10 @@ class sa_AchievementItem : OptionMenuItemCommand
     mNLines  = sa_.countLines(mText);
     mFont    = Font.GetFont(achievement.fontName);
     mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
-	mIcon = TexMan.checkForTexture(achievement.icon, TexMan.Type_Any);
+
+    mIcon = (mStatus == sa_.LOCKED) // [las]
+    ? TexMan.checkForTexture(achievement.lockedIcon, TexMan.Type_Any)
+    : TexMan.checkForTexture(achievement.unlockedIcon, TexMan.Type_Any);
 
     Super.init("", "", centered: true);
     return self;
@@ -952,11 +959,11 @@ class sa_AchievementItem : OptionMenuItemCommand
                        , borderX, borderY
                        , borderWidth, borderHeight
                        , boxWidth, boxHeight
-					             , iconX, iconY
-					             , iconWidth, iconHeight
+                       , iconX, iconY
+                       , iconWidth, iconHeight
                        , OPAQUE
                        , mTexture
-					             , mIcon
+                       , mIcon
                        , mAchievement.borderColor
                        , mAchievement.boxColor
                        , mFont
