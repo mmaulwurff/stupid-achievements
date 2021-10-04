@@ -108,7 +108,8 @@ class ia_OneKill : sa_Achievement
     sa_Achievement.description "Kill one imp";
     sa_Achievement.borderColor 0xDDDD22;
     sa_Achievement.boxColor    0xFFFFFF;
-    sa_Achievement.icon "graphics/sa_imp1kill.png";
+	sa_Achievement.lockedIcon "graphics/sa_imp1kill.png";
+	sa_Achievement.unlockedIcon "graphics/sa_imp1kill.png";
   }
 }
 
@@ -121,7 +122,8 @@ class ia_TenKills : sa_Achievement
     sa_Achievement.limit 10;
     sa_Achievement.borderColor 0xDD2222;
     sa_Achievement.boxColor    0xDDDD22;
-    sa_Achievement.icon "graphics/sa_imp10kill.png";
+	sa_Achievement.lockedIcon "graphics/sa_imp10kill.png";
+	sa_Achievement.unlockedIcon "graphics/sa_imp10kill.png";
   }
 }
 
@@ -134,7 +136,8 @@ class ia_100Kills : sa_Achievement
     sa_Achievement.limit 100;
     sa_Achievement.borderColor 0x990000;
     sa_Achievement.boxColor    0xDD2222;
-    sa_Achievement.icon "graphics/sa_imp100kill.png";
+	sa_Achievement.lockedIcon "graphics/sa_imp100kill.png";
+	sa_Achievement.unlockedIcon "graphics/sa_imp100kill.png";
   }
 }
 
@@ -147,7 +150,8 @@ class ia_666Kills : sa_Achievement
     sa_Achievement.limit 666;
     sa_Achievement.borderColor 0x000000;
     sa_Achievement.boxColor    0x990000;
-    sa_Achievement.icon "graphics/sa_imp666kill.png";
+	sa_Achievement.lockedIcon "graphics/sa_imp666kill.png";
+	sa_Achievement.unlockedIcon "graphics/sa_imp666kill.png";
   }
 }
 
@@ -160,7 +164,8 @@ class ia_Telefrag : sa_Achievement
     sa_Achievement.borderColor 0x509e43;
     sa_Achievement.boxColor    0xcaa53b;
     sa_Achievement.isHidden true;
-    sa_Achievement.icon "graphics/sa_imptele.png";
+	sa_Achievement.lockedIcon "graphics/sa_imptele.png";
+	sa_Achievement.unlockedIcon "graphics/sa_imptele.png";
   }
 }
 
@@ -172,7 +177,8 @@ class ia_Shadow : sa_Achievement
     sa_Achievement.description "Make an imp cast a shadow";
     sa_Achievement.borderColor 0x555555;
     sa_Achievement.boxColor    0x000000;
-    sa_Achievement.icon "graphics/sa_impshadow.png";
+	sa_Achievement.lockedIcon "graphics/sa_impshadow.png";
+	sa_Achievement.unlockedIcon "graphics/sa_impshadow.png";
   }
 }
 
@@ -186,7 +192,8 @@ class ia_Friend : sa_Achievement
     sa_Achievement.description "Don't kill any imp on the level";
     sa_Achievement.borderColor 0x000000;
     sa_Achievement.boxColor    0x00AA00;
-    sa_Achievement.icon "graphics/sa_impfriend.png";
+	sa_Achievement.lockedIcon "graphics/sa_impfriend.png";
+	sa_Achievement.unlockedIcon "graphics/sa_impfriend.png";
   }
 }
 
@@ -196,7 +203,8 @@ class ia_Overkill : sa_Achievement
   {
     sa_Achievement.name "Overkill";
     sa_Achievement.description "Kill an imp more than usual";
-    sa_Achievement.icon "graphics/sa_impoverkill.png";
+	sa_Achievement.lockedIcon "graphics/sa_impoverkill.png";
+	sa_Achievement.unlockedIcon "graphics/sa_impoverkill.png";
   }
 }
 
@@ -207,6 +215,7 @@ class ia_Melee : sa_Achievement
     sa_Achievement.name "Come closer";
     sa_Achievement.description "Hit imps 100 times with melee attack";
     sa_Achievement.limit 100;
-    sa_Achievement.icon "graphics/sa_impmelee.png";
+	sa_Achievement.lockedIcon "graphics/sa_impmelee.png";
+	sa_Achievement.unlockedIcon "graphics/sa_impmelee.png";
   }
 }
