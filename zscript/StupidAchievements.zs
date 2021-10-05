@@ -112,8 +112,8 @@ class sa_Achievement : Actor abstract
     sa_Achievement.boxColor 0x2222AA;
 
     // Achievement icon.
-    sa_Achievement.lockedIcon "sa_lockedIcon";
-    sa_Achievement.unlockedIcon "sa_unlockedicon";
+    sa_Achievement.lockedIcon "sa_icon";
+    sa_Achievement.unlockedIcon "sa_icon";
 
     // Text color. See Font struct for available colors.
     sa_Achievement.textColor Font.CR_White;
@@ -354,8 +354,8 @@ class sa_TestAchievement : sa_Achievement
     sa_Achievement.description "Test description";
     sa_Achievement.limit 999999;
     sa_Achievement.isProgressVisible true;
-    sa_Achievement.lockedIcon "sa_lockedIcon";
-    sa_Achievement.unlockedIcon "sa_unlockedIcon";
+    sa_Achievement.lockedIcon "sa_icon";
+    sa_Achievement.unlockedIcon "sa_icon";
   }
 } // class sa_TestAchievement
 
