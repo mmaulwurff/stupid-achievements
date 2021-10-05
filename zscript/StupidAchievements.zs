@@ -341,8 +341,8 @@ extend class sa_Achievement
   property margin        : margin;
   property border        : border;
   property isHidden      : isHidden;
-  property lockedIcon : lockedIcon;
-  property unlockedIcon : unlockedIcon;
+  property lockedIcon    : lockedIcon;
+  property unlockedIcon  : unlockedIcon;
 
 } // class sa_Achievement
 
