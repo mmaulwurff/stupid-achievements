@@ -437,13 +437,13 @@ class sa_ // namespace
 
     // icon 
     Screen.DrawTexture( icon
-					, NO_ANIMATION
-					, iconX
-					, iconY
-					, DTA_DestWidth    , iconWidth
-					, DTA_DestHeight   , iconHeight
-					, DTA_Alpha        , alpha
-					);
+                   , NO_ANIMATION
+                   , iconX
+                   , iconY
+                   , DTA_DestWidth    , iconWidth
+                   , DTA_DestHeight   , iconHeight
+                   , DTA_Alpha        , alpha
+                   );
   }
 
   static
@@ -532,10 +532,10 @@ class sa_NoAnimationTask : sa_Task
     int borderX = x;
     int borderY = y;
 
-	int iconWidth = boxheight;
-	int iconHeight = iconWidth;
-	int iconX =  boxX - iconWidth * 1.1 ;
-	int iconY =  textY - mAchievement.margin / 2;
+    int iconWidth = boxheight;
+    int iconHeight = iconWidth;
+    int iconX =  boxX - iconWidth * 1.1 ;
+    int iconY =  textY - mAchievement.margin / 2;
 
     double alpha = getAlpha(levelTime, fracTic);
 
