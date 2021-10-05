@@ -394,7 +394,7 @@ class sa_ // namespace
                       , int iconWidth, int iconHeight
                       , double alpha
                       , TextureID texture
-					   , TextureID Icon
+                      , TextureID Icon
                       , int borderColor
                       , int boxColor
                       , Font fnt
@@ -436,7 +436,7 @@ class sa_ // namespace
                    );
 
     // icon 
-	Screen.DrawTexture( icon
+    Screen.DrawTexture( icon
 					, NO_ANIMATION
 					, iconX
 					, iconY
@@ -949,10 +949,10 @@ class sa_AchievementItem : OptionMenuItemCommand
     int borderX = boxX - mAchievement.border;
     int borderY = boxY - mAchievement.border;
 
-	  int iconWidth = boxheight;
-	  int iconHeight = iconWidth;
-	  int iconX =  boxX - iconWidth * 1.1 ;
-	  int iconY =  textY - mAchievement.margin / 2;
+    int iconWidth = boxheight;
+    int iconHeight = iconWidth;
+    int iconX =  boxX - iconWidth * 1.1 ;
+    int iconY =  textY - mAchievement.margin / 2;
 
     sa_.drawAchievement( textX, textY
                        , boxX, boxY
