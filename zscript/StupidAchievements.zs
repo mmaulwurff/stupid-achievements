@@ -494,7 +494,7 @@ class sa_Task abstract
     mNLines  = sa_.countLines(mText);
     mFont    = Font.GetFont(achievement.fontName);
     mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
-    mIcon = sa_. switchIcon(achievement, isProgress, count);
+    mIcon    = sa_.switchIcon(achievement, isProgress, count);
 
     mHorizontalPositionCvar = sa_Cvar.of("sa_horizontal_position");
     mVerticalPositionCvar   = sa_Cvar.of("sa_vertical_position");
