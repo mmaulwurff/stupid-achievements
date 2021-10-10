@@ -383,6 +383,14 @@ class sa_ // namespace
                      , StringTable.localize(achievement.name)
                      );
   }
+  
+  static
+  TextureID switchIcon(readonly<sa_Achievement> achievement, bool isProgress, int count)
+  {
+    return isProgress
+      ? TexMan.checkForTexture(achievement.lockedIcon, TexMan.Type_Any)
+      : TexMan.checkForTexture(achievement.unlockedIcon, TexMan.Type_Any);
+  }
 
   static
   void drawAchievement( int textX, int textY
@@ -486,6 +494,7 @@ class sa_Task abstract
     mNLines  = sa_.countLines(mText);
     mFont    = Font.GetFont(achievement.fontName);
     mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
+    mIcon = sa_. switchIcon(achievement, isProgress, count);
 
     mHorizontalPositionCvar = sa_Cvar.of("sa_horizontal_position");
     mVerticalPositionCvar   = sa_Cvar.of("sa_vertical_position");
@@ -534,8 +543,8 @@ class sa_NoAnimationTask : sa_Task
 
     int iconWidth = boxheight;
     int iconHeight = iconWidth;
-    int iconX =  boxX - iconWidth * 1.1 ;
-    int iconY =  textY - mAchievement.margin / 2;
+    int iconX =  boxX - iconWidth; //Only on the left side, iconX = boxWidth if displayed on the right side.
+    int iconY =  textY - mAchievement.margin + mAchievement.border / 2;
 
     double alpha = getAlpha(levelTime, fracTic);
 
