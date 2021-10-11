@@ -543,7 +543,9 @@ class sa_NoAnimationTask : sa_Task
 
     int iconWidth = boxheight;
     int iconHeight = iconWidth;
-    int iconX =  boxX - iconWidth; //Only on the left side, iconX = boxWidth if displayed on the right side.
+    int iconX =  (mHorizontalPositionCvar.getInt() == 0)
+         ? boxWidth
+         : boxX - iconWidth;
     int iconY =  textY - mAchievement.margin + mAchievement.border / 2;
 
     double alpha = getAlpha(levelTime, fracTic);
