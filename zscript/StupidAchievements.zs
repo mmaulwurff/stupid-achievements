@@ -1,4 +1,5 @@
-/* Copyright Alexander 'm8f' Kromm (mmaulwurff@gmail.com) 2020
+/* Copyright Alexander 'm8f' Kromm (mmaulwurff@gmail.com) 2021
+ * Laskow 2021
  *
  * This file is a part of Typist.pk3.
  *
