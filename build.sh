@@ -25,4 +25,4 @@ zip -R $name.pk3 \
 
 cp $name.pk3 $name-$(git describe --abbrev=0 --tags).pk3
 
-gzdoom -file $name.pk3 "$@"
+gzdoom -file $name.pk3 "$@" > output 2>&1; cat output
