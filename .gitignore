@@ -7,12 +7,12 @@
 
 !.gitignore
 !.gitattributes
-!**.txt
-!**.md
-!**.zs
-!**.sh
-!**.png
-!**.lmp
+!*.txt
+!*.md
+!*.zs
+!*.sh
+!*.png
+!*.lmp
 
 # Do ignore this:
 
