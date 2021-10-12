@@ -21,15 +21,6 @@ class ia_EventHandler : EventHandler
   override
   void worldLoaded(WorldEvent event)
   {
-    String className = "Z_SpriteShadow";
-    class<Actor> c = className;
-    bool isSpriteShadowLoaded = (c != NULL);
-
-    if (isSpriteShadowLoaded && isImpsPresent())
-    {
-      sa_Achiever.achieve("ia_Shadow");
-    }
-
     mIsImpDied = false;
   }
 
@@ -164,19 +155,6 @@ class ia_Telefrag : sa_Achievement
     sa_Achievement.borderColor 0x509e43;
     sa_Achievement.boxColor    0xcaa53b;
     sa_Achievement.isHidden true;
-    sa_Achievement.lockedIcon "graphics/sa_icon.png";
-    sa_Achievement.unlockedIcon "graphics/sa_icon.png";
-  }
-}
-
-class ia_Shadow : sa_Achievement
-{
-  Default
-  {
-    sa_Achievement.name "Shadowy";
-    sa_Achievement.description "Make an imp cast a shadow";
-    sa_Achievement.borderColor 0x555555;
-    sa_Achievement.boxColor    0x000000;
     sa_Achievement.lockedIcon "graphics/sa_icon.png";
     sa_Achievement.unlockedIcon "graphics/sa_icon.png";
   }
