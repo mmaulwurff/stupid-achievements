@@ -111,6 +111,10 @@ class sa_Achievement : Actor abstract
     // Foreground color. RGB: 0xRRGGBB.
     sa_Achievement.boxColor 0x2222AA;
 
+    // Achievement icon.
+    sa_Achievement.lockedIcon "sa_icon";
+    sa_Achievement.unlockedIcon "sa_icon";
+
     // Text color. See Font struct for available colors.
     sa_Achievement.textColor Font.CR_White;
 
@@ -318,6 +322,9 @@ extend class sa_Achievement
 
   bool isHidden;
 
+  String lockedIcon;
+  String unlockedIcon;
+
   property title         : title;
   property name          : name;
   property description   : description;
@@ -334,6 +341,8 @@ extend class sa_Achievement
   property margin        : margin;
   property border        : border;
   property isHidden      : isHidden;
+  property lockedIcon    : lockedIcon;
+  property unlockedIcon  : unlockedIcon;
 
 } // class sa_Achievement
 
@@ -345,6 +354,8 @@ class sa_TestAchievement : sa_Achievement
     sa_Achievement.description "Test description";
     sa_Achievement.limit 999999;
     sa_Achievement.isProgressVisible true;
+    sa_Achievement.lockedIcon "sa_icon";
+    sa_Achievement.unlockedIcon "sa_icon";
   }
 } // class sa_TestAchievement
 
@@ -372,6 +383,14 @@ class sa_ // namespace
                      , StringTable.localize(achievement.name)
                      );
   }
+  
+  static
+  TextureID switchIcon(readonly<sa_Achievement> achievement, bool isProgress, int count)
+  {
+    return isProgress
+      ? TexMan.checkForTexture(achievement.lockedIcon, TexMan.Type_Any)
+      : TexMan.checkForTexture(achievement.unlockedIcon, TexMan.Type_Any);
+  }
 
   static
   void drawAchievement( int textX, int textY
@@ -379,8 +398,11 @@ class sa_ // namespace
                       , int borderX, int borderY
                       , int borderWidth, int borderHeight
                       , int boxWidth, int boxHeight
+                      , int iconX, int iconY
+                      , int iconWidth, int iconHeight
                       , double alpha
                       , TextureID texture
+                      , TextureID Icon
                       , int borderColor
                       , int boxColor
                       , Font fnt
@@ -419,6 +441,16 @@ class sa_ // namespace
                    , text
                    , DTA_Alpha         , alpha
                    , DTA_CleanNoMove_1 , true
+                   );
+
+    // icon 
+    Screen.DrawTexture( icon
+                   , NO_ANIMATION
+                   , iconX
+                   , iconY
+                   , DTA_DestWidth    , iconWidth
+                   , DTA_DestHeight   , iconHeight
+                   , DTA_Alpha        , alpha
                    );
   }
 
@@ -462,6 +494,7 @@ class sa_Task abstract
     mNLines  = sa_.countLines(mText);
     mFont    = Font.GetFont(achievement.fontName);
     mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
+    mIcon    = sa_.switchIcon(achievement, isProgress, count);
 
     mHorizontalPositionCvar = sa_Cvar.of("sa_horizontal_position");
     mVerticalPositionCvar   = sa_Cvar.of("sa_vertical_position");
@@ -473,6 +506,7 @@ class sa_Task abstract
   protected int       mNLines;
   protected Font      mFont;
   protected TextureID mTexture;
+  protected TextureID mIcon;
 
   protected int mBirthTime;
 
@@ -507,6 +541,13 @@ class sa_NoAnimationTask : sa_Task
     int borderX = x;
     int borderY = y;
 
+    int iconWidth = boxheight;
+    int iconHeight = iconWidth;
+    int iconX =  (mHorizontalPositionCvar.getInt() == 0)
+         ? boxWidth
+         : boxX - iconWidth;
+    int iconY =  textY - mAchievement.margin + mAchievement.border / 2;
+
     double alpha = getAlpha(levelTime, fracTic);
 
     sa_.drawAchievement( textX, textY
@@ -514,8 +555,11 @@ class sa_NoAnimationTask : sa_Task
                        , borderX, borderY
                        , borderWidth, borderHeight
                        , boxWidth, boxHeight
+                       , iconX, iconY
+                       , iconWidth, iconHeight
                        , alpha
                        , mTexture
+                       , mIcon
                        , mAchievement.borderColor
                        , mAchievement.boxColor
                        , mFont
@@ -864,7 +908,7 @@ class sa_AchievementItem : OptionMenuItemCommand
 
     String progress = (mStatus == sa_.LOCKED && count > 0)
       ? String.format("\nProgress: %d/%d", count, achievement.limit)
-      : "";
+      : "\n";
     mText = String.format( "%s\n%s%s"
                          , StringTable.localize(achievement.name)
                          , StringTable.localize(achievement.description)
@@ -873,6 +917,10 @@ class sa_AchievementItem : OptionMenuItemCommand
     mNLines  = sa_.countLines(mText);
     mFont    = Font.GetFont(achievement.fontName);
     mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
+
+    mIcon = (mStatus == sa_.LOCKED) // [las]
+    ? TexMan.checkForTexture(achievement.lockedIcon, TexMan.Type_Any)
+    : TexMan.checkForTexture(achievement.unlockedIcon, TexMan.Type_Any);
 
     Super.init("", "", centered: true);
     return self;
@@ -912,13 +960,21 @@ class sa_AchievementItem : OptionMenuItemCommand
     int borderX = boxX - mAchievement.border;
     int borderY = boxY - mAchievement.border;
 
+    int iconWidth = boxheight;
+    int iconHeight = iconWidth;
+    int iconX =  boxX - iconWidth * 1.1 ;
+    int iconY =  textY - mAchievement.margin / 2;
+
     sa_.drawAchievement( textX, textY
                        , boxX, boxY
                        , borderX, borderY
                        , borderWidth, borderHeight
                        , boxWidth, boxHeight
+                       , iconX, iconY
+                       , iconWidth, iconHeight
                        , OPAQUE
                        , mTexture
+                       , mIcon
                        , mAchievement.borderColor
                        , mAchievement.boxColor
                        , mFont
@@ -936,6 +992,7 @@ class sa_AchievementItem : OptionMenuItemCommand
   private Font   mFont;
   private int    mNLines;
   private TextureID mTexture;
+  private TextureID mIcon;
   private int    mStatus;
 
 } // class sa_AchievementItem
