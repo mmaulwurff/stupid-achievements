@@ -383,11 +383,11 @@ class sa_ // namespace
                      , StringTable.localize(achievement.name)
                      );
   }
-  
+
   static
-  TextureID switchIcon(readonly<sa_Achievement> achievement, bool isProgress, int count)
+  TextureID switchIcon(readonly<sa_Achievement> achievement, bool isLocked)
   {
-    return isProgress
+    return isLocked
       ? TexMan.checkForTexture(achievement.lockedIcon, TexMan.Type_Any)
       : TexMan.checkForTexture(achievement.unlockedIcon, TexMan.Type_Any);
   }
@@ -402,7 +402,7 @@ class sa_ // namespace
                       , int iconWidth, int iconHeight
                       , double alpha
                       , TextureID texture
-                      , TextureID Icon
+                      , TextureID icon
                       , int borderColor
                       , int boxColor
                       , Font fnt
@@ -443,7 +443,7 @@ class sa_ // namespace
                    , DTA_CleanNoMove_1 , true
                    );
 
-    // icon 
+    // icon
     Screen.DrawTexture( icon
                    , NO_ANIMATION
                    , iconX
@@ -494,7 +494,7 @@ class sa_Task abstract
     mNLines  = sa_.countLines(mText);
     mFont    = Font.GetFont(achievement.fontName);
     mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
-    mIcon    = sa_.switchIcon(achievement, isProgress, count);
+    mIcon    = sa_.switchIcon(achievement, isProgress);
 
     mHorizontalPositionCvar = sa_Cvar.of("sa_horizontal_position");
     mVerticalPositionCvar   = sa_Cvar.of("sa_vertical_position");
@@ -917,10 +917,7 @@ class sa_AchievementItem : OptionMenuItemCommand
     mNLines  = sa_.countLines(mText);
     mFont    = Font.GetFont(achievement.fontName);
     mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
-
-    mIcon = (mStatus == sa_.LOCKED) // [las]
-    ? TexMan.checkForTexture(achievement.lockedIcon, TexMan.Type_Any)
-    : TexMan.checkForTexture(achievement.unlockedIcon, TexMan.Type_Any);
+    mIcon    = sa_.switchIcon(achievement, mStatus == sa_.LOCKED); // [las]
 
     Super.init("", "", centered: true);
     return self;
@@ -962,7 +959,7 @@ class sa_AchievementItem : OptionMenuItemCommand
 
     int iconWidth = boxheight;
     int iconHeight = iconWidth;
-    int iconX =  boxX - iconWidth * 1.1 ;
+    int iconX =  boxX - int(iconWidth * 1.1);
     int iconY =  textY - mAchievement.margin / 2;
 
     sa_.drawAchievement( textX, textY
