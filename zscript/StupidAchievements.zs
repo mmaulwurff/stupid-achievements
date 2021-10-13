@@ -112,9 +112,9 @@ class sa_Achievement : Actor abstract
     // Foreground color. RGB: 0xRRGGBB.
     sa_Achievement.boxColor 0x2222AA;
 
-    // Achievement icon.
-    sa_Achievement.lockedIcon "sa_icon";
-    sa_Achievement.unlockedIcon "sa_icon";
+    // Achievement icon (optional).
+    sa_Achievement.lockedIcon "";
+    sa_Achievement.unlockedIcon "";
 
     // Text color. See Font struct for available colors.
     sa_Achievement.textColor Font.CR_White;
