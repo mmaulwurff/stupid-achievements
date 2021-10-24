@@ -548,12 +548,12 @@ class sa_NoAnimationTask : sa_Task
     int borderX = x;
     int borderY = y;
 
-    int iconWidth = boxheight;
+    int iconWidth  = borderHeight;
     int iconHeight = iconWidth;
-    int iconX =  (mHorizontalPositionCvar.getInt() == 0)
-         ? boxWidth
-         : boxX - iconWidth;
-    int iconY =  textY - mAchievement.margin + mAchievement.border / 2;
+    int iconX      =  (mHorizontalPositionCvar.getInt() == 0)
+                   ? boxWidth
+                   : boxX - iconWidth;
+    int iconY      = borderY;
 
     double alpha = getAlpha(levelTime, fracTic);
 
@@ -964,7 +964,7 @@ class sa_AchievementItem : OptionMenuItemCommand
     int borderX = boxX - mAchievement.border;
     int borderY = boxY - mAchievement.border;
 
-    int iconWidth = boxheight;
+    int iconWidth  = borderHeight;
     int iconHeight = iconWidth;
     int iconX =  boxX - int(iconWidth * 1.1);
     int iconY =  textY - mAchievement.margin / 2;
