@@ -208,7 +208,7 @@ extend class sa_Achiever
     let task = getCurrentTask();
     int time = level.time;
 
-    if (task && task.isFinished(time))
+    if (task && (task.isLoadedFromSave() || task.isFinished(time)))
     {
       mTasks.delete(0);
 
@@ -226,7 +226,7 @@ extend class sa_Achiever
     let task = getCurrentTask();
     int time = level.time;
 
-    if (task && !task.isFinished(time))
+    if (task && !task.isLoadedFromSave() && !task.isFinished(time))
     {
       task.draw(time, event.fracTic);
     }
@@ -482,6 +482,11 @@ class sa_Task abstract
     return levelTime > mBirthTime + mAchievement.lifetime;
   }
 
+  bool isLoadedFromSave() const
+  {
+    return mAchievement == NULL;
+  }
+
   void start()
   {
     mBirthTime = level.time;
@@ -493,7 +498,7 @@ class sa_Task abstract
 
     mText    = sa_.makeFullText(achievement, isProgress, count);
     mNLines  = sa_.countLines(mText);
-    mFont    = Font.GetFont(achievement.fontName);
+    mFont    = achievement.fontName;
     mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
     mIcon    = sa_.switchIcon(achievement, isProgress);
 
@@ -505,7 +510,7 @@ class sa_Task abstract
 
   protected String    mText;
   protected int       mNLines;
-  protected Font      mFont;
+  protected String    mFont;
   protected TextureID mTexture;
   protected TextureID mIcon;
 
@@ -522,8 +527,9 @@ class sa_NoAnimationTask : sa_Task
   override
   void draw(int levelTime, double fracTic)
   {
-    int textWidth    = CleanXFac_1 * mFont.stringWidth(mText);
-    int textHeight   = CleanYFac_1 * mFont.getHeight() * mNLines;
+    Font aFont = Font.GetFont(mFont);
+    int textWidth    = CleanXFac_1 * aFont.stringWidth(mText);
+    int textHeight   = CleanYFac_1 * aFont.getHeight() * mNLines;
 
     int boxWidth     = mAchievement.margin * 2 + textWidth;
     int boxHeight    = mAchievement.margin * 2 + textHeight;
@@ -563,7 +569,7 @@ class sa_NoAnimationTask : sa_Task
                        , mIcon
                        , mAchievement.borderColor
                        , mAchievement.boxColor
-                       , mFont
+                       , aFont
                        , mAchievement.textColor
                        , mText
                        );

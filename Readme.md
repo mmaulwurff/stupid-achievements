@@ -31,3 +31,4 @@ Consists of two parts:
 Thanks to:
 - robert_banks for testing access to achievements from ACS.
 - Laskow for adding icon support.
+- IdiotBitz for bug reports.
