@@ -20,6 +20,7 @@ OptionMenu sa_Options
   Option "$SA_HORIZONTAL", sa_horizontal_position, sa_HorizontalPositionValues
   Option "$SA_VERTICAL"  , sa_vertical_position,   sa_VerticalPositionValues
   Option "$SA_ANIMATION" , sa_animation_type,      sa_AnimationValues
+  Option "$SA_SOUND"     , sa_sound_enabled,       OnOff
 
   StaticText ""
   Command "$SA_TEST", sa_test

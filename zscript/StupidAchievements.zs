@@ -83,7 +83,10 @@ class sa_Achievement : Actor abstract
     sa_Achievement.progressTitle "$SA_PROGRESS";
 
     // True if a notification is shown each time this achievement progress advances.
+    // Interval decides how often to show the notification, e.g. every 10 progresses.
+    // Interval must be > 0.
     sa_Achievement.isProgressVisible false;
+    sa_Achievement.isProgressVisibleInterval 1;
 
     // Hidden achievements don't show up in Locked achievement list, and are only
     // visible when are achieved.
@@ -115,6 +118,10 @@ class sa_Achievement : Actor abstract
     // Achievement icon (optional).
     sa_Achievement.lockedIcon "";
     sa_Achievement.unlockedIcon "";
+
+    // Achievement sound (optional)
+    sa_Achievement.unlockSound "";
+    sa_Achievement.progressSound "";
 
     // Text color. See Font struct for available colors.
     sa_Achievement.textColor Font.CR_White;
@@ -155,7 +162,7 @@ extend class sa_Achiever
     {
     case STATE_UNLOCKED: addTask(me, achievement, false, 0); break;
     case STATE_PROGRESS:
-      if (achievement.isProgressVisible)
+      if (achievement.isProgressVisible && count % achievement.isProgressVisibleInterval == 0)
       {
         addTask(me, achievement, true,  count);
       }
@@ -308,6 +315,7 @@ extend class sa_Achievement
   int    limit;
   String progressTitle;
   bool   isProgressVisible;
+  int    isProgressVisibleInterval;
 
   int lifetime;
   int animationTime;
@@ -326,12 +334,16 @@ extend class sa_Achievement
   String lockedIcon;
   String unlockedIcon;
 
+  String unlockSound;
+  String progressSound;
+
   property title         : title;
   property name          : name;
   property description   : description;
   property limit         : limit;
   property progressTitle : progressTitle;
   property isProgressVisible : isProgressVisible;
+  property isProgressVisibleInterval : isProgressVisibleInterval;
   property lifetime      : lifetime;
   property animationTime : animationTime;
   property fontName      : fontName;
@@ -344,6 +356,8 @@ extend class sa_Achievement
   property isHidden      : isHidden;
   property lockedIcon    : lockedIcon;
   property unlockedIcon  : unlockedIcon;
+  property unlockSound   : unlockSound;
+  property progressSound : progressSound;
 
 } // class sa_Achievement
 
@@ -357,6 +371,8 @@ class sa_TestAchievement : sa_Achievement
     sa_Achievement.isProgressVisible true;
     sa_Achievement.lockedIcon "sa_icon";
     sa_Achievement.unlockedIcon "sa_icon";
+    sa_Achievement.progressSound "misc/chat";
+    sa_Achievement.unlockSound "misc/secret";
   }
 } // class sa_TestAchievement
 
@@ -391,6 +407,14 @@ class sa_ // namespace
     return isLocked
       ? TexMan.checkForTexture(achievement.lockedIcon, TexMan.Type_Any)
       : TexMan.checkForTexture(achievement.unlockedIcon, TexMan.Type_Any);
+  }
+
+  static
+  String switchSound(readonly<sa_Achievement> achievement, bool isLocked)
+  {
+    return isLocked
+      ? achievement.progressSound
+      : achievement.unlockSound;
   }
 
   static
@@ -489,6 +513,10 @@ class sa_Task abstract
 
   void start()
   {
+    if(mSoundEnabledCvar.getBool())
+    {
+      S_StartSound(mSound,CHAN_AUTO,CHANF_UI);
+    }
     mBirthTime = level.time;
   }
 
@@ -501,7 +529,9 @@ class sa_Task abstract
     mFont    = achievement.fontName;
     mTexture = TexMan.checkForTexture(achievement.texture, TexMan.Type_Any);
     mIcon    = sa_.switchIcon(achievement, isProgress);
+    mSound   = sa_.switchSound(achievement, isProgress);
 
+    mSoundEnabledCvar       = sa_Cvar.of("sa_sound_enabled");
     mHorizontalPositionCvar = sa_Cvar.of("sa_horizontal_position");
     mVerticalPositionCvar   = sa_Cvar.of("sa_vertical_position");
   }
@@ -513,11 +543,13 @@ class sa_Task abstract
   protected String    mFont;
   protected TextureID mTexture;
   protected TextureID mIcon;
+  protected String    mSound;
 
   protected int mBirthTime;
 
   protected sa_Cvar mHorizontalPositionCvar;
   protected sa_Cvar mVerticalPositionCvar;
+  protected sa_Cvar mSoundEnabledCvar;
 
 } // class sa_Task abstract
 

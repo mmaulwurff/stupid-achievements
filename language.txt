@@ -21,6 +21,7 @@ SA_CLEAR      = "Clear achievements";
 SA_TEST       = "Show test achievement";
 
 SA_NOTIFY           = "Notifications";
+SA_SOUND            = "Notification sound";
 SA_SLIDE_VERTICAL   = "Slide vertically";
 SA_SLIDE_HORIZONTAL = "Slide horizontally";
 SA_FADE_IN_OUT      = "Fade in/fade out";

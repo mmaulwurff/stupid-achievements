@@ -101,6 +101,7 @@ class ia_OneKill : sa_Achievement
     sa_Achievement.boxColor    0xFFFFFF;
     sa_Achievement.lockedIcon "graphics/sa_icon.png";
     sa_Achievement.unlockedIcon "graphics/sa_icon.png";
+    sa_Achievement.unlockSound "misc/secret";
   }
 }
 
@@ -115,6 +116,7 @@ class ia_TenKills : sa_Achievement
     sa_Achievement.boxColor    0xDDDD22;
     sa_Achievement.lockedIcon "graphics/sa_icon.png";
     sa_Achievement.unlockedIcon "graphics/sa_icon.png";
+    sa_Achievement.unlockSound "misc/secret";
   }
 }
 
@@ -129,6 +131,7 @@ class ia_100Kills : sa_Achievement
     sa_Achievement.boxColor    0xDD2222;
     sa_Achievement.lockedIcon "graphics/sa_icon.png";
     sa_Achievement.unlockedIcon "graphics/sa_icon.png";
+    sa_Achievement.unlockSound "misc/secret";
   }
 }
 
@@ -143,6 +146,7 @@ class ia_666Kills : sa_Achievement
     sa_Achievement.boxColor    0x990000;
     sa_Achievement.lockedIcon "graphics/sa_icon.png";
     sa_Achievement.unlockedIcon "graphics/sa_icon.png";
+    sa_Achievement.unlockSound "misc/secret";
   }
 }
 
@@ -157,6 +161,7 @@ class ia_Telefrag : sa_Achievement
     sa_Achievement.isHidden true;
     sa_Achievement.lockedIcon "graphics/sa_icon.png";
     sa_Achievement.unlockedIcon "graphics/sa_icon.png";
+    sa_Achievement.unlockSound "misc/secret";
   }
 }
 
@@ -172,6 +177,7 @@ class ia_Friend : sa_Achievement
     sa_Achievement.boxColor    0x00AA00;
     sa_Achievement.lockedIcon "graphics/sa_icon.png";
     sa_Achievement.unlockedIcon "graphics/sa_icon.png";
+    sa_Achievement.unlockSound "misc/secret";
   }
 }
 
@@ -183,6 +189,7 @@ class ia_Overkill : sa_Achievement
     sa_Achievement.description "Kill an imp more than usual";
     sa_Achievement.lockedIcon "graphics/sa_icon.png";
     sa_Achievement.unlockedIcon "graphics/sa_icon.png";
+    sa_Achievement.unlockSound "misc/secret";
   }
 }
 
@@ -193,7 +200,11 @@ class ia_Melee : sa_Achievement
     sa_Achievement.name "Come closer";
     sa_Achievement.description "Hit imps 100 times with melee attack";
     sa_Achievement.limit 100;
+    sa_Achievement.isProgressVisible true;
+    sa_Achievement.isProgressVisibleInterval 10;
     sa_Achievement.lockedIcon "graphics/sa_icon.png";
     sa_Achievement.unlockedIcon "graphics/sa_icon.png";
+    sa_Achievement.unlockSound "misc/secret";
+    sa_Achievement.progressSound "misc/chat";
   }
 }

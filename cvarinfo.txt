@@ -3,5 +3,6 @@ user int sa_horizontal_position = 1;
 user int sa_animation_type      = 0;
 
 user bool sa_notification_enabled = true;
+user bool sa_sound_enabled        = true;
 
 nosave string sa_achievements = "";
